@@ -104,9 +104,15 @@ class UserController extends Controller
         return DataTables::of($users)
             ->addIndexColumn()
             ->addColumn('action', function ($user) {
+                $opdId = $user->opd_id ? $user->opd_id : '';
+                $opdName = $user->opd ? htmlspecialchars($user->opd->nama_instansi, ENT_QUOTES, 'UTF-8') : '';
+                
                 $btn = '<div class="d-flex gap-1">
                             <button type="button" class="btn btn-sm btn-primary btn-edit" 
                                 data-id="' . $user->id . '" 
+                                data-role="' . htmlspecialchars($user->role, ENT_QUOTES, 'UTF-8') . '"
+                                data-opd-id="' . $opdId . '"
+                                data-opd-name="' . $opdName . '"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#userModal" 
                                 title="Edit">

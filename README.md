@@ -1,58 +1,239 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Pengundian CFD
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem manajemen pengundian untuk event dengan fitur pendaftaran, pengundian, dan manajemen OPD (Organisasi Perangkat Daerah).
 
-## About Laravel
+## Tentang Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sistem Pengundian CFD adalah aplikasi web berbasis Laravel yang dirancang untuk mengelola event pengundian dengan fitur pendaftaran peserta, manajemen OPD, dan sistem pengundian yang transparan. Aplikasi ini dilengkapi dengan QR Code untuk akses event dan fitur import/export data.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Manajemen User
 
-## Learning Laravel
+-   CRUD User dengan role-based access control
+-   Role: Super Admin, Developer, Admin OPD
+-   Setiap user dapat dikaitkan dengan OPD tertentu
+-   Import/Export user via Excel
+-   Validasi dan keamanan data
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 2. Manajemen OPD (Organisasi Perangkat Daerah)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   CRUD OPD
+-   Data instansi, singkatan, dan nomor HP
+-   Relasi dengan user dan event
 
-## Laravel Sponsors
+### 3. Manajemen Event
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   CRUD Event dengan status:
+    -   Draft
+    -   Pendaftaran Dibuka
+    -   Pendaftaran Ditutup
+    -   Pengundian
+    -   Selesai
+-   QR Code untuk akses event
+-   Tanggal mulai dan selesai event
+-   Deskripsi event
+-   Relasi dengan OPD
 
-### Premium Partners
+### 4. Dashboard Admin
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+-   Overview sistem
+-   Statistik dan monitoring
 
-## Contributing
+### 5. Profile Management
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   Edit profile user
+-   Update password
 
-## Code of Conduct
+### 6. Fitur Tambahan
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+-   Import/Export Excel (Maatwebsite Excel)
+-   DataTables untuk tabel interaktif
+-   QR Code generation (Endroid QR Code)
+-   Select2 untuk dropdown dengan AJAX
+-   Authentication dengan Laravel UI
 
-## Security Vulnerabilities
+## Teknologi yang Digunakan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   **Framework**: Laravel 12
+-   **PHP**: 8.2+
+-   **Database**: MySQL/SQLite
+-   **Frontend**:
+    -   Bootstrap 5
+    -   jQuery
+    -   DataTables
+    -   Select2
+    -   SweetAlert2
+-   **Libraries**:
+    -   Maatwebsite Excel (Import/Export)
+    -   Yajra DataTables (Server-side processing)
+    -   Endroid QR Code (QR Code generation)
+
+## Requirements
+
+-   PHP >= 8.2
+-   Composer
+-   Node.js & NPM
+-   Database (MySQL/MariaDB/PostgreSQL/SQLite)
+
+## Instalasi
+
+1. Clone repository
+
+```bash
+git clone <repository-url>
+cd pengundian-cfd
+```
+
+2. Install dependencies
+
+```bash
+composer install
+npm install
+```
+
+3. Setup environment
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Konfigurasi database di `.env`
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pengundian_cfd
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+5. Jalankan migration dan seeder
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+6. Build assets
+
+```bash
+npm run build
+```
+
+7. Jalankan server
+
+```bash
+php artisan serve
+```
+
+Akses aplikasi di `http://localhost:8000`
+
+## Struktur Project
+
+```
+pengundian-cfd/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── Admin/
+│   │   │       ├── DashboardController.php
+│   │   │       ├── EventController.php
+│   │   │       ├── OpdController.php
+│   │   │       ├── ProfileController.php
+│   │   │       └── UserController.php
+│   │   └── Requests/
+│   │       ├── StoreEventRequest.php
+│   │       ├── StoreUserRequest.php
+│   │       └── UpdateUserRequest.php
+│   └── Models/
+│       ├── Event.php
+│       ├── Opd.php
+│       └── User.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   └── views/
+│       ├── admin/
+│       │   ├── event/
+│       │   ├── opd/
+│       │   ├── users/
+│       │   └── profile/
+│       └── guest/
+│           └── event/
+└── routes/
+    ├── admin/
+    └── guest/
+```
+
+## Role dan Permission
+
+### Super Admin
+
+-   Akses penuh ke semua fitur
+-   Manajemen semua user dan OPD
+-   Manajemen semua event
+
+### Developer
+
+-   Akses penuh ke semua fitur
+-   Mirip dengan Super Admin
+
+### Admin OPD
+
+-   Manajemen event untuk OPD sendiri
+-   Akses terbatas sesuai OPD yang ditugaskan
+
+## Database Schema
+
+### Users
+
+-   id, name, email, password, role, opd_id, created_at, updated_at
+
+### OPD
+
+-   id, nama_instansi, singkatan, nomor_hp, created_at, updated_at
+
+### Event
+
+-   id, nm_event, opd_id, status, tgl_mulai, tgl_selesai, deskripsi, qr_token, created_at, updated_at
+
+## API Endpoints
+
+### Admin Routes
+
+-   `/admin/dashboard` - Dashboard
+-   `/admin/users` - User Management
+-   `/admin/opd` - OPD Management
+-   `/admin/event` - Event Management
+-   `/admin/profile` - Profile Management
+
+### Guest Routes
+
+-   `/event/{token}` - Public event access via QR token
+
+## Development
+
+### Menjalankan Development Server
+
+```bash
+composer run dev
+```
+
+### Testing
+
+```bash
+php artisan test
+```
+
+### Code Style
+
+```bash
+./vendor/bin/pint
+```
 
 ## License
 
