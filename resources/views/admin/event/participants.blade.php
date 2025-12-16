@@ -5,30 +5,20 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h5 class="mb-1">Peserta Event: {{ $event->nm_event }}</h5>
-                        <p class="text-muted mb-0">Kelola data peserta untuk pengundian</p>
-                    </div>
-                    <a href="{{ route('admin.event.show', $event) }}" class="btn btn-outline-secondary">
-                        <i class="fi fi-rr-arrow-left me-1"></i> Kembali ke Event
-                    </a>
-                </div>
-            </div>
-        </div>
-
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
-                <h6 class="card-title mb-0">Daftar Peserta</h6>
+                <div>
+                    <h6 class="card-title mb-1">Peserta Event: {{ $event->nm_event }}</h6>
+                    <p class="text-muted mb-0 small">Kelola data peserta untuk pengundian</p>
+                </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-danger waves-effect waves-light" id="btnClear"
-                        onclick="confirmClear()">
+                    <a href="{{ route('admin.event.show', $event) }}" class="btn btn-secondary waves-effect waves-light">
+                        <i class="fi fi-rr-arrow-left me-1"></i> Kembali ke Event
+                    </a>
+                    <button type="button" class="btn btn-danger waves-effect waves-light" id="btnClear" onclick="confirmClear()">
                         <i class="fi fi-rr-trash me-1"></i> Hapus Semua
                     </button>
-                    <button type="button" class="btn btn-success waves-effect waves-light" id="btnImport"
-                        data-bs-toggle="modal" data-bs-target="#importModal">
+                    <button type="button" class="btn btn-success waves-effect waves-light" id="btnImport" data-bs-toggle="modal" data-bs-target="#importModal">
                         <i class="fi fi-rr-upload me-1"></i> Import Excel
                     </button>
                 </div>
@@ -75,8 +65,7 @@
                     <div class="alert alert-info">
                         <i class="fi fi-rr-info me-1"></i>
                         <strong>Download Template:</strong>
-                        <a href="{{ route('admin.event.participants.template') }}"
-                            class="btn btn-sm btn-outline-primary ms-2">
+                        <a href="{{ route('admin.event.participants.template') }}" class="btn btn-sm btn-outline-primary ms-2">
                             <i class="fi fi-rr-download me-1"></i> Download Template
                         </a>
                     </div>
@@ -111,7 +100,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
     let table;
 
     // Setup CSRF token for Axios
@@ -137,8 +126,9 @@
             { data: 'created_at', name: 'created_at' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        order: [[5, 'desc']], 
-        pageLength: 25,
+        order: [[5, 'desc']],
+        pageLength: 10,
+        pagingType: "simple",
         language: {
             processing: "Loading...",
             search: "Search:",
@@ -192,7 +182,6 @@
             let message = response.data.message;
             if (response.data.errors && response.data.errors.length > 0) {
                 console.error(response.data.errors);
-                // Simplify error message for user
                 message += ' Cek console untuk detail error.';
             }
             
@@ -206,7 +195,7 @@
                 $('#file').removeClass('is-invalid');
                 
                 $.each(errors, function(key, value) {
-                    const input = $(`#${key}`); // usually just #file
+                    const input = $(`#${key}`);
                     if(input.length) {
                         input.addClass('is-invalid');
                         input.siblings('.invalid-feedback').text(value[0]);

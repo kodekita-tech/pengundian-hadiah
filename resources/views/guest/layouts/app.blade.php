@@ -68,6 +68,7 @@
 	<link rel="stylesheet" href="{{ asset('assets') }}/css/styles.css">
 	<!-- end::GXON CSS Stylesheet -->
 
+	@stack('styles')
 </head>
 
 <body>
@@ -76,6 +77,7 @@
 		// Force light theme for guest pages (login, etc.)
 		document.documentElement.setAttribute('data-bs-theme', 'light');
 	</script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<script src="{{ asset('assets') }}/libs/global/global.min.js"></script>
 	<script src="{{ asset('assets') }}/js/appSettings.js"></script>
 	<script>
@@ -90,6 +92,7 @@
 		});
 	</script>
 	<!-- end::GXON Page Scripts -->
+	@stack('scripts')
 </body>
 
 </html>

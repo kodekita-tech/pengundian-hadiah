@@ -25,9 +25,11 @@ class EventController extends Controller
         $query = Event::with(['opd'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by opd if user has opd_id
         $user = $request->user();
-        if ($user && $user->opd_id) {
+        
+        // Filter by opd_id only for admin_opd role
+        // Superadmin and Developer can see all events
+        if ($user && $user->role === 'admin_opd' && $user->opd_id) {
             $query->where('opd_id', $user->opd_id);
         }
 

@@ -20,3 +20,7 @@ Route::post('/d/{shortlink}/verify', [\App\Http\Controllers\DrawController::clas
 Route::get('/d/{shortlink}/candidates', [\App\Http\Controllers\DrawController::class, 'getCandidates'])->name('draw.candidates');
 Route::post('/d/{shortlink}/winner', [\App\Http\Controllers\DrawController::class, 'storeWinner'])->name('draw.winner');
 
+// QR Registration Routes
+Route::get('/qr/{token}', [\App\Http\Controllers\QrController::class, 'show'])->name('qr.show');
+Route::post('/qr/{token}/register', [\App\Http\Controllers\QrController::class, 'register'])->name('qr.register');
+
