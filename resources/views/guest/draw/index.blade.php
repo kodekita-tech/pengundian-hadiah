@@ -10,9 +10,9 @@
     </div>
 
     <div class="container py-5">
-        <div class="row justify-content-center">
+    <div class="row justify-content-center">
             <div class="col-xxl-11">
-                <!-- Event Header -->
+            <!-- Event Header -->
                 <div class="event-header-card">
                     <div class="event-header-content">
                         <div class="event-info">
@@ -34,12 +34,12 @@
                             <i class="fi fi-rr-copy"></i>
                             <span>Copy Link</span>
                         </button>
-                    </div>
                 </div>
+            </div>
 
                 <!-- Main Content -->
                 <div class="row g-4">
-                    <!-- Drawing Area -->
+            <!-- Drawing Area -->
                     <div class="col-lg-8">
                         <div class="draw-card">
                             <!-- Prize Input -->
@@ -54,30 +54,30 @@
                                     placeholder="Contoh: Sepeda Motor, Kulkas, dll..." 
                                     autocomplete="off">
                             </div>
-
+                            
                             <!-- Drawing Display -->
                             <div class="draw-display">
-                                <!-- Initial State -->
+                            <!-- Initial State -->
                                 <div id="drawInitial" class="draw-state">
                                     <div class="state-icon initial-icon">
                                         <i class="fi fi-rr-box-open"></i>
-                                    </div>
+                                </div>
                                     <h3 class="state-title">Siap untuk mengundi?</h3>
                                     <p class="state-subtitle">Pastikan peserta sudah diimport oleh panitia</p>
-                                </div>
+                            </div>
 
-                                <!-- Rolling State -->
+                            <!-- Rolling State -->
                                 <div id="drawRolling" class="draw-state d-none">
                                     <div class="state-icon rolling-icon">
                                         <i class="fi fi-rr-refresh"></i>
-                                    </div>
+                                </div>
                                     <div class="rolling-content">
                                         <div class="rolling-text" id="rollingCoupon">000000</div>
                                         <div class="rolling-label">Nomor Kupon</div>
                                     </div>
-                                </div>
+                            </div>
 
-                                <!-- Winner State -->
+                            <!-- Winner State -->
                                 <div id="drawWinner" class="draw-state d-none">
                                     <div class="winner-celebration">
                                         <div class="confetti-burst"></div>
@@ -97,7 +97,7 @@
                                             <i class="fi fi-rr-gift"></i>
                                             <span>Hadiah: -</span>
                                         </div>
-                                    </div>
+                                </div>
                                 </div>
                             </div>
 
@@ -115,20 +115,20 @@
                                     <i class="fi fi-rr-refresh"></i>
                                     <span>RESET / UNDI LAGI</span>
                                 </button>
-                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Winners List -->
+                <!-- Winners List -->
                     <div class="col-lg-4">
                         <div class="winners-card">
                             <div class="winners-header">
                                 <i class="fi fi-rr-trophy"></i>
                                 <h3>Daftar Pemenang</h3>
-                            </div>
+                        </div>
                             <div class="winners-list" id="winnerList">
                                 <div class="list-group list-group-flush">
-                                    @forelse($winners as $winner)
+                                @forelse($winners as $winner)
                                         <div class="list-group-item winner-item">
                                             <div class="winner-item-icon">
                                                 <i class="fi fi-rr-trophy"></i>
@@ -153,7 +153,7 @@
                                             <p>Belum ada pemenang</p>
                                         </div>
                                     @endforelse
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -907,7 +907,7 @@ $(document).ready(function() {
         })
         .then(res => {
             showWinner(res.data.winner);
-            candidates.splice(winnerIndex, 1);
+             candidates.splice(winnerIndex, 1);
         })
         .catch(err => {
             $.toast({ 
@@ -915,13 +915,13 @@ $(document).ready(function() {
                 icon: 'error',
                 position: 'top-center'
             });
-            
-            // Reset UI if failed
-            $('#drawRolling').addClass('d-none');
-            $('#drawInitial').removeClass('d-none');
+             
+             // Reset UI if failed
+             $('#drawRolling').addClass('d-none');
+             $('#drawInitial').removeClass('d-none');
             $('#btnStop').addClass('d-none').prop('disabled', false).html('<i class="fi fi-rr-stop"></i><span>STOP & PILIH PEMENANG</span>');
-            $('#btnStart').removeClass('d-none');
-            $('#prizeName').prop('disabled', false);
+             $('#btnStart').removeClass('d-none');
+             $('#prizeName').prop('disabled', false);
         });
     });
 

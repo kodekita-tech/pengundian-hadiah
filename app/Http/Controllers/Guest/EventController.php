@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guest;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -11,3 +12,4 @@ class EventController extends Controller
         return view('guest.event.index');
     }
 }
+

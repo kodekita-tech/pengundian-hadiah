@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guest;
 
+use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Winner;
 use App\Models\Participant;
@@ -17,6 +18,10 @@ class DrawController extends Controller
     public function show(string $shortlink)
     {
         $event = Event::where('shortlink', $shortlink)->with('opd')->firstOrFail();
+        
+        // Auto-update status based on date (without scheduler)
+        $event->autoUpdateStatus();
+        $event->refresh(); // Refresh to get updated status
         
         // Check if event has passkey protection
         if ($event->hasPasskey()) {
@@ -131,3 +136,4 @@ class DrawController extends Controller
         }
     }
 }
+

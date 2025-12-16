@@ -1,5 +1,7 @@
 @extends('guest.layouts.app')
 
+@section('title', 'Verifikasi Passkey - ' . $event->nm_event)
+
 @section('content')
 <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
     <div class="card shadow-lg border-0" style="max-width: 500px; width: 100%; border-radius: 20px;">

@@ -67,12 +67,46 @@ class Event extends Model
 
     /**
      * Check if event is open for registration.
+     * Date range is checked FIRST, then status.
      */
     public function isOpenForRegistration(): bool
     {
-        return $this->status === self::STATUS_REGISTRATION_OPEN &&
-               $this->tgl_mulai <= now() &&
-               $this->tgl_selesai >= now();
+        // First check date range - if date has passed, always return false
+        if ($this->tgl_selesai < now()) {
+            return false;
+        }
+        
+        if ($this->tgl_mulai > now()) {
+            return false;
+        }
+        
+        // Then check status
+        return $this->status === self::STATUS_REGISTRATION_OPEN || 
+               $this->status === self::STATUS_DRAFT;
+    }
+
+    /**
+     * Check if event registration period has ended (date has passed).
+     */
+    public function hasRegistrationPeriodEnded(): bool
+    {
+        return $this->tgl_selesai < now();
+    }
+
+    /**
+     * Check if event registration period has started.
+     */
+    public function hasRegistrationPeriodStarted(): bool
+    {
+        return $this->tgl_mulai <= now();
+    }
+
+    /**
+     * Check if event is currently within registration period.
+     */
+    public function isWithinRegistrationPeriod(): bool
+    {
+        return $this->hasRegistrationPeriodStarted() && !$this->hasRegistrationPeriodEnded();
     }
 
     /**
@@ -185,5 +219,30 @@ class Event extends Model
     public function winners()
     {
         return $this->hasMany(Winner::class);
+    }
+
+    /**
+     * Auto-update status based on date range.
+     * Call this method whenever event is accessed to ensure status is up-to-date.
+     */
+    public function autoUpdateStatus(): void
+    {
+        $now = now();
+
+        // If registration period has ended but status is still "pendaftaran_dibuka"
+        if ($this->status === self::STATUS_REGISTRATION_OPEN && $this->tgl_selesai < $now) {
+            $this->status = self::STATUS_REGISTRATION_CLOSED;
+            $this->saveQuietly(); // Save without triggering events
+        }
+
+        // Optional: Auto-open registration when date starts (uncomment if needed)
+        /*
+        if ($this->status === self::STATUS_DRAFT && 
+            $this->tgl_mulai <= $now && 
+            $this->tgl_selesai >= $now) {
+            $this->status = self::STATUS_REGISTRATION_OPEN;
+            $this->saveQuietly();
+        }
+        */
     }
 }

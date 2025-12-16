@@ -110,6 +110,38 @@
                                 </div>
                             </div>
 
+                            <!-- Captcha Field -->
+                            @if(isset($captcha))
+                            <div class="form-group">
+                                <label for="captcha" class="form-label">
+                                    <i class="fi fi-rr-shield-check"></i>
+                                    <span>Verifikasi <span class="required">*</span></span>
+                                </label>
+                                <div class="captcha-wrapper">
+                                    <div class="captcha-question">
+                                        <span class="captcha-text">{{ $captcha['question'] }}</span>
+                                        <button type="button" class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh Captcha">
+                                            <i class="fi fi-rr-refresh"></i>
+                                        </button>
+                                    </div>
+                                    <div class="input-wrapper">
+                                        <input type="number" class="form-input @error('captcha') is-invalid @enderror" 
+                                            id="captcha" name="captcha" placeholder="Masukkan jawaban" 
+                                            value="{{ old('captcha') }}" required>
+                                        <div class="input-icon">
+                                            <i class="fi fi-rr-shield-check"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('captcha')
+                                <div class="error-message">
+                                    <i class="fi fi-rr-exclamation-circle"></i>
+                                    {{ $message }}
+                                </div>
+                                @enderror
+                            </div>
+                            @endif
+
                             <!-- Info Box -->
                             <div class="info-box">
                                 <div class="info-icon">
@@ -585,6 +617,62 @@
         color: #667eea;
     }
 
+    /* Captcha */
+    .captcha-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .captcha-question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.875rem 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        gap: 1rem;
+    }
+
+    .captcha-text {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #667eea;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+        flex: 1;
+        text-align: center;
+    }
+
+    .captcha-refresh {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        flex-shrink: 0;
+    }
+
+    .captcha-refresh:hover {
+        transform: rotate(180deg);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .captcha-refresh:active {
+        transform: rotate(180deg) scale(0.95);
+    }
+
+    .captcha-refresh i {
+        font-size: 1rem;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .register-header {
@@ -613,6 +701,20 @@
 
 @push('scripts')
 <script>
+    function refreshCaptcha() {
+        $.ajax({
+            url: "{{ route('qr.refresh-captcha', $token) }}",
+            type: 'GET',
+            success: function(response) {
+                $('.captcha-text').text(response.question);
+                $('#captcha').val('').focus();
+            },
+            error: function() {
+                alert('Gagal refresh captcha. Silakan refresh halaman.');
+            }
+        });
+    }
+
     $(document).ready(function() {
     $('#registrationForm').on('submit', function(e) {
         const $submitBtn = $('#submitBtn');

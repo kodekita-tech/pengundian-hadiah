@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EventController;
+use App\Http\Controllers\Guest\EventController;
+use App\Http\Controllers\Guest\DrawController;
+use App\Http\Controllers\Guest\QrController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,14 +15,15 @@ use App\Http\Controllers\EventController;
 */
 
 Route::get('/event', [EventController::class, 'index'])->name('event.index');
-Route::get('/d/{shortlink}', [\App\Http\Controllers\DrawController::class, 'show'])->name('draw.show');
-Route::post('/d/{shortlink}/verify', [\App\Http\Controllers\DrawController::class, 'verifyPasskey'])->name('draw.verify');
+Route::get('/d/{shortlink}', [DrawController::class, 'show'])->name('draw.show');
+Route::post('/d/{shortlink}/verify', [DrawController::class, 'verifyPasskey'])->name('draw.verify');
 
 // API Routes for Draw Page (Guest)
-Route::get('/d/{shortlink}/candidates', [\App\Http\Controllers\DrawController::class, 'getCandidates'])->name('draw.candidates');
-Route::post('/d/{shortlink}/winner', [\App\Http\Controllers\DrawController::class, 'storeWinner'])->name('draw.winner');
+Route::get('/d/{shortlink}/candidates', [DrawController::class, 'getCandidates'])->name('draw.candidates');
+Route::post('/d/{shortlink}/winner', [DrawController::class, 'storeWinner'])->name('draw.winner');
 
 // QR Registration Routes
-Route::get('/qr/{token}', [\App\Http\Controllers\QrController::class, 'show'])->name('qr.show');
-Route::post('/qr/{token}/register', [\App\Http\Controllers\QrController::class, 'register'])->name('qr.register');
+Route::get('/qr/{token}', [QrController::class, 'show'])->name('qr.show');
+Route::get('/qr/{token}/refresh-captcha', [QrController::class, 'refreshCaptcha'])->name('qr.refresh-captcha');
+Route::post('/qr/{token}/register', [QrController::class, 'register'])->name('qr.register');
 

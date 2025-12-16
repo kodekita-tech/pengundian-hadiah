@@ -41,6 +41,29 @@ class RegisterController extends Controller
     }
 
     /**
+     * Show the registration form.
+     * Redirect to login instead.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function showRegistrationForm()
+    {
+        return redirect()->route('login');
+    }
+
+    /**
+     * Handle a registration request for the application.
+     * Redirect to login instead.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(\Illuminate\Http\Request $request)
+    {
+        return redirect()->route('login');
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
