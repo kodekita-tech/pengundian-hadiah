@@ -33,6 +33,12 @@
                     <span class="menu-label">OPD</span>
                 </a>
             </li>
+            <li class="menu-item">
+                <a class="menu-link" href="{{ route('admin.event.index') }}">
+                    <i class="fi fi-rr-calendar"></i>
+                    <span class="menu-label">Event</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </aside>

@@ -28,6 +28,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>OPD</th>
                                 <th>Created At</th>
                                 <th>Action</th>
                             </tr>
@@ -74,6 +75,13 @@
                         <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                         <select class="form-select" id="role" name="role" required>
                             <option value="">Select Role</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="opd_id" class="form-label">OPD</label>
+                        <select class="form-select" id="opd_id" name="opd_id">
+                            <option value="">Select OPD (Optional)</option>
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
@@ -206,11 +214,23 @@
     initTooltips();
 
     // Initialize Select2 for role field with AJAX
-    function initSelect2() {
+    function initSelect2Role(selectedValue = null, selectedText = null) {
         if ($('#role').hasClass('select2-hidden-accessible')) {
             $('#role').select2('destroy');
         }
         
+        // Clear existing options
+        $('#role').empty();
+        
+        // Add placeholder
+        $('#role').append('<option value="">Select Role</option>');
+        
+        // If we have a selected value, add it to DOM first
+        if (selectedValue && selectedText) {
+            $('#role').append(new Option(selectedText, selectedValue, true, true));
+        }
+        
+        // Initialize Select2
         $('#role').select2({
             theme: 'bootstrap-5',
             placeholder: 'Select Role',
@@ -250,11 +270,155 @@
                 return role.text || role.id;
             }
         });
+        
+        // Set value after Select2 is fully initialized
+        if (selectedValue) {
+            // Function to set the value
+            const setValue = function() {
+                // Ensure option exists in DOM
+                let $option = $('#role').find('option[value="' + selectedValue + '"]');
+                if ($option.length === 0) {
+                    // Add option if it doesn't exist (before placeholder)
+                    $('#role option[value=""]').after(new Option(selectedText, selectedValue, true, true));
+                }
+                
+                // Set value
+                $('#role').val(selectedValue);
+                
+                // Trigger change to update Select2 display
+                $('#role').trigger('change');
+            };
+            
+            // Try setting value multiple times to ensure it works
+            setTimeout(setValue, 100);
+            setTimeout(setValue, 300);
+            
+            // Also set when Select2 is opened (as backup)
+            $('#role').one('select2:open', setValue);
+        }
     }
 
+    // Initialize Select2 for OPD field with AJAX
+    function initSelect2Opd(selectedValue = null, selectedText = null) {
+        if ($('#opd_id').hasClass('select2-hidden-accessible')) {
+            $('#opd_id').select2('destroy');
+        }
+        
+        // Clear existing options
+        $('#opd_id').empty();
+        
+        // Add placeholder
+        $('#opd_id').append('<option value="">Select OPD (Optional)</option>');
+        
+        // If we have a selected value, add it to DOM first
+        if (selectedValue && selectedText) {
+            $('#opd_id').append(new Option(selectedText, selectedValue, true, true));
+        }
+        
+        // Initialize Select2
+        $('#opd_id').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select OPD (Optional)',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#userModal'), // Important for modal
+            ajax: {
+                url: "{{ route('admin.users.opds') }}",
+                type: 'GET',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || '', // search term
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: false
+                        }
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 0,
+            templateResult: function(opd) {
+                if (opd.loading) {
+                    return 'Loading...';
+                }
+                return opd.text;
+            },
+            templateSelection: function(opd) {
+                return opd.text || opd.id;
+            }
+        });
+        
+        // Set value after Select2 is fully initialized
+        if (selectedValue) {
+            // Function to set the value
+            const setValue = function() {
+                // Ensure option exists in DOM
+                let $option = $('#opd_id').find('option[value="' + selectedValue + '"]');
+                if ($option.length === 0) {
+                    // Add option if it doesn't exist (before placeholder)
+                    $('#opd_id option[value=""]').after(new Option(selectedText, selectedValue, true, true));
+                }
+                
+                // Set value
+                $('#opd_id').val(selectedValue);
+                
+                // Trigger change to update Select2 display
+                $('#opd_id').trigger('change');
+            };
+            
+            // Try setting value multiple times to ensure it works
+            setTimeout(setValue, 100);
+            setTimeout(setValue, 300);
+            
+            // Also set when Select2 is opened (as backup)
+            $('#opd_id').one('select2:open', setValue);
+        } else {
+            setTimeout(function() {
+                $('#opd_id').val(null).trigger('change');
+            }, 100);
+        }
+    }
+
+    // Initialize Select2 for both fields
+    function initSelect2() {
+        initSelect2Role();
+        initSelect2Opd();
+    }
+
+    // Store edit data temporarily
+    let editUserData = null;
+    
     // Initialize Select2 when modal is shown
     $('#userModal').on('shown.bs.modal', function() {
-        initSelect2();
+        if (isEdit && editUserData) {
+            // Initialize Select2 with selected values for edit mode
+            const user = editUserData;
+            const roleText = user.role.charAt(0).toUpperCase() + user.role.slice(1).replace('_', ' ');
+            const opdText = (user.opd && user.opd.nama_instansi) ? user.opd.nama_instansi : null;
+            const opdId = user.opd_id || null;
+            
+            initSelect2Role(user.role, roleText);
+            initSelect2Opd(opdId, opdText);
+            
+            // Clear edit data after use
+            editUserData = null;
+        } else if (!isEdit) {
+            // Initialize Select2 for add mode
+            if (!$('#role').hasClass('select2-hidden-accessible')) {
+                initSelect2Role();
+            }
+            if (!$('#opd_id').hasClass('select2-hidden-accessible')) {
+                initSelect2Opd();
+            }
+        }
     });
 
     // Setup CSRF token for Axios
@@ -276,10 +440,11 @@
             { data: 'name', name: 'name' },
             { data: 'email', name: 'email' },
             { data: 'role', name: 'role' },
+            { data: 'opd', name: 'opd' },
             { data: 'created_at', name: 'created_at' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        order: [[4, 'desc']], // Order by created_at descending (newest first)
+        order: [[5, 'desc']], // Order by created_at descending (newest first)
         pageLength: 10,
         pagingType: "simple",
         language: {
@@ -319,7 +484,10 @@
         $('#password').prop('required', true);
         $('.invalid-feedback').text('');
         $('.form-control, .form-select').removeClass('is-invalid');
-        $('#role').val(null).trigger('change'); // Reset Select2
+        // Only reset Select2 if not in edit mode
+        if (!isEdit) {
+            initSelect2(); // Reinitialize Select2 to reset
+        }
         isEdit = false;
     }
 
@@ -332,12 +500,24 @@
     // Open modal for edit
     $(document).on('click', '.btn-edit', function() {
         const id = $(this).data('id');
-        isEdit = true;
+        isEdit = true; // Set before resetForm to prevent Select2 reset
+        
+        // Destroy Select2 first to clear any old data
+        if ($('#role').hasClass('select2-hidden-accessible')) {
+            $('#role').select2('destroy');
+        }
+        if ($('#opd_id').hasClass('select2-hidden-accessible')) {
+            $('#opd_id').select2('destroy');
+        }
+        
         resetForm();
         $('#userModalLabel').text('Edit User');
         $('#passwordRequired').hide();
         $('#passwordHint').show();
         $('#password').prop('required', false);
+        
+        // Clear previous edit data
+        editUserData = null;
 
         axios.get(`{{ url('admin/users') }}/${id}`)
             .then(function(response) {
@@ -346,22 +526,16 @@
                 $('#name').val(user.name);
                 $('#email').val(user.email);
                 
-                // Format role text
-                const roleText = user.role.charAt(0).toUpperCase() + user.role.slice(1).replace('_', ' ');
+                // Store user data for use in shown.bs.modal event
+                editUserData = user;
                 
-                // Set role value after Select2 is initialized
-                $('#userModal').one('shown.bs.modal', function() {
-                    // Create option if not exists
-                    if ($('#role').find(`option[value="${user.role}"]`).length === 0) {
-                        $('#role').append(new Option(roleText, user.role, true, true));
-                    }
-                    $('#role').val(user.role).trigger('change');
-                });
-                
+                // Show modal - Select2 will be initialized in shown.bs.modal event
                 $('#userModal').modal('show');
             })
             .catch(function(error) {
                 showToast('error', 'Failed to load user data');
+                isEdit = false; // Reset flag on error
+                editUserData = null;
             });
     });
 
@@ -378,6 +552,7 @@
         formData.append('name', $('#name').val());
         formData.append('email', $('#email').val());
         formData.append('role', $('#role').val() || '');
+        formData.append('opd_id', $('#opd_id').val() || '');
         
         // Only add password if it has a value
         const password = $('#password').val();
@@ -463,6 +638,9 @@
 
     // Reset form when modal is closed
     $('#userModal').on('hidden.bs.modal', function() {
+        // Clear edit data
+        editUserData = null;
+        isEdit = false;
         resetForm();
     });
 
