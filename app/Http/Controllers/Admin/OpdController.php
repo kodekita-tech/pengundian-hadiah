@@ -19,6 +19,12 @@ class OpdController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            if (auth()->user()->role === 'admin_opd') {
+                abort(403, 'Unauthorized access.');
+            }
+            return $next($request);
+        });
     }
 
     public function index()

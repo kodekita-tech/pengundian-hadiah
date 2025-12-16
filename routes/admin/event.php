@@ -18,6 +18,7 @@ Route::get('/event/opd/data', [EventController::class, 'getOpdData'])->name('eve
 use App\Http\Controllers\Admin\ParticipantController;
 Route::get('/event/{event}/participants', [ParticipantController::class, 'index'])->name('event.participants.index');
 Route::post('/event/{event}/participants/data', [ParticipantController::class, 'getData'])->name('event.participants.data');
+Route::get('/event/{event}/participants/export', [ParticipantController::class, 'export'])->name('event.participants.export');
 Route::post('/event/{event}/participants/import', [ParticipantController::class, 'import'])->name('event.participants.import');
 Route::get('/event/participants/template', [ParticipantController::class, 'downloadTemplate'])->name('event.participants.template');
 Route::delete('/event/participants/{id}', [ParticipantController::class, 'destroy'])->name('event.participants.destroy');

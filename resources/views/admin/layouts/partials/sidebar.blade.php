@@ -21,6 +21,7 @@
             <li class="menu-heading">
                 <span class="menu-label">Management</span>
             </li>
+            @if(auth()->user()->role !== 'admin_opd')
             <li class="menu-item">
                 <a class="menu-link" href="{{ route('admin.users.index') }}">
                     <i class="fi fi-rr-users"></i>
@@ -33,6 +34,7 @@
                     <span class="menu-label">OPD</span>
                 </a>
             </li>
+            @endif
             <li class="menu-item">
                 <a class="menu-link" href="{{ route('admin.event.index') }}">
                     <i class="fi fi-rr-calendar"></i>

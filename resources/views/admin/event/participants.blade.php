@@ -15,6 +15,9 @@
                     <a href="{{ route('admin.event.show', $event) }}" class="btn btn-secondary waves-effect waves-light">
                         <i class="fi fi-rr-arrow-left me-1"></i> Kembali ke Event
                     </a>
+                    <a href="{{ route('admin.event.participants.export', $event) }}" class="btn btn-info waves-effect waves-light">
+                        <i class="fi fi-rr-download me-1"></i> Export Excel
+                    </a>
                     <button type="button" class="btn btn-danger waves-effect waves-light" id="btnClear" onclick="confirmClear()">
                         <i class="fi fi-rr-trash me-1"></i> Hapus Semua
                     </button>

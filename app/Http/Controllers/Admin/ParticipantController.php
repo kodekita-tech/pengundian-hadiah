@@ -245,6 +245,73 @@ class ParticipantController extends Controller
     }
     
     /**
+     * Export participants to Excel
+     */
+    public function export(Event $event)
+    {
+        try {
+            $participants = Participant::where('event_id', $event->id)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Data Peserta');
+
+            // Set headers with styling
+            $headers = ['No', 'No. Kupon', 'Nama', 'No. HP', 'Status', 'Tanggal Daftar'];
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->getFont()->setBold(true);
+                $sheet->getStyle($col . '1')->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FF4472C4');
+                $sheet->getStyle($col . '1')->getFont()->getColor()->setARGB('FFFFFFFF');
+                $col++;
+            }
+
+            // Set data
+            $row = 2;
+            foreach ($participants as $index => $participant) {
+                $sheet->setCellValue('A' . $row, $index + 1);
+                $sheet->setCellValue('B' . $row, $participant->coupon_number);
+                $sheet->setCellValue('C' . $row, $participant->name);
+                $sheet->setCellValue('D' . $row, $participant->phone ?? '-');
+                $sheet->setCellValue('E' . $row, $participant->is_winner ? 'Winner' : 'Participant');
+                $sheet->setCellValue('F' . $row, $participant->created_at->format('d M Y H:i'));
+                $row++;
+            }
+
+            // Auto size columns
+            foreach (range('A', 'F') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            // Set borders
+            $sheet->getStyle('A1:F' . ($row - 1))->getBorders()->getAllBorders()
+                ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'peserta_' . str_replace([' ', '/'], '_', $event->nm_event) . '_' . date('Ymd_His') . '.xlsx';
+            $filePath = storage_path('app/temp/' . $filename);
+
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0755, true);
+            }
+
+            $writer->save($filePath);
+
+            return response()->download($filePath, $filename)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengekspor data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
      * Clear all participants for an event
      */
     public function clear(Event $event)
