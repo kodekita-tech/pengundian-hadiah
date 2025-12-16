@@ -14,3 +14,12 @@ Route::post('/event/{event}/update-status', [EventController::class, 'updateStat
 Route::post('/event/{event}/regenerate-qr', [EventController::class, 'regenerateQrToken'])->name('event.regenerate-qr');
 Route::get('/event/opd/data', [EventController::class, 'getOpdData'])->name('event.opd.data');
 
+// Participant Routes
+use App\Http\Controllers\Admin\ParticipantController;
+Route::get('/event/{event}/participants', [ParticipantController::class, 'index'])->name('event.participants.index');
+Route::post('/event/{event}/participants/data', [ParticipantController::class, 'getData'])->name('event.participants.data');
+Route::post('/event/{event}/participants/import', [ParticipantController::class, 'import'])->name('event.participants.import');
+Route::get('/event/participants/template', [ParticipantController::class, 'downloadTemplate'])->name('event.participants.template');
+Route::delete('/event/participants/{id}', [ParticipantController::class, 'destroy'])->name('event.participants.destroy');
+Route::delete('/event/{event}/participants/clear', [ParticipantController::class, 'clear'])->name('event.participants.clear');
+

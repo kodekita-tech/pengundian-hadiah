@@ -28,6 +28,12 @@ class Event extends Model
         'tgl_selesai',
         'deskripsi',
         'qr_token',
+        'passkey',
+        'shortlink',
+    ];
+
+    protected $hidden = [
+        'passkey',
     ];
 
     protected $casts = [
@@ -124,5 +130,60 @@ class Event extends Model
             self::STATUS_COMPLETED => 'bg-primary text-white',
             default => 'bg-secondary text-white'
         };
+    }
+
+    /**
+     * Generate unique shortlink for this event.
+     */
+    public function generateShortlink(): string
+    {
+        do {
+            $shortlink = Str::random(8);
+        } while (self::where('shortlink', $shortlink)->exists());
+
+        $this->shortlink = $shortlink;
+        $this->save();
+
+        return $this->shortlink;
+    }
+
+    /**
+     * Check if event has passkey.
+     */
+    public function hasPasskey(): bool
+    {
+        return !empty($this->passkey);
+    }
+
+    /**
+     * Verify passkey for this event.
+     */
+    public function verifyPasskey(?string $inputPasskey): bool
+    {
+        if (!$this->hasPasskey()) {
+            return true; // No passkey set, always allow
+        }
+
+        if (empty($inputPasskey)) {
+            return false;
+        }
+
+        return password_verify($inputPasskey, $this->passkey);
+    }
+
+    /**
+     * Get the participants for the event.
+     */
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
+
+    /**
+     * Get the winners for the event.
+     */
+    public function winners()
+    {
+        return $this->hasMany(Winner::class);
     }
 }

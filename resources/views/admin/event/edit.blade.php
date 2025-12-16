@@ -105,6 +105,27 @@
                         @enderror
                     </div>
 
+                    <div class="mb-3">
+                        <label for="passkey" class="form-label">Passkey (Opsional)</label>
+                        @if($event->hasPasskey())
+                            <div class="alert alert-info py-2 mb-2">
+                                <i class="fi fi-rr-lock me-1"></i> Event ini sudah memiliki passkey
+                            </div>
+                        @endif
+                        <div class="input-group">
+                            <input type="password" class="form-control @error('passkey') is-invalid @enderror" 
+                                   id="passkey" name="passkey" value="{{ old('passkey') }}" 
+                                   placeholder="{{ $event->hasPasskey() ? 'Masukkan passkey baru untuk mengubah (kosongkan jika tidak ingin mengubah)' : 'Masukkan passkey untuk mengamankan halaman pengundian' }}">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePasskey">
+                                <i class="fi fi-rr-eye" id="passkeyIcon"></i>
+                            </button>
+                        </div>
+                        @error('passkey')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">{{ $event->hasPasskey() ? 'Kosongkan jika tidak ingin mengubah passkey yang ada.' : 'Kosongkan jika tidak perlu proteksi.' }}</small>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.event.index') }}" class="btn btn-secondary">
                             <i class="fi fi-rr-arrow-left me-1"></i> Batal
@@ -217,6 +238,20 @@ $(document).ready(function() {
         placeholder: 'Pilih Status',
         allowClear: false,
         width: '100%'
+    });
+    
+    // Toggle passkey visibility
+    $('#togglePasskey').on('click', function() {
+        const passkeyInput = $('#passkey');
+        const passkeyIcon = $('#passkeyIcon');
+        
+        if (passkeyInput.attr('type') === 'password') {
+            passkeyInput.attr('type', 'text');
+            passkeyIcon.removeClass('fi-rr-eye').addClass('fi-rr-eye-crossed');
+        } else {
+            passkeyInput.attr('type', 'password');
+            passkeyIcon.removeClass('fi-rr-eye-crossed').addClass('fi-rr-eye');
+        }
     });
 });
 </script>

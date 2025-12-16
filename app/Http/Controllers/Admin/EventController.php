@@ -36,7 +36,7 @@ class EventController extends Controller
             $query->where('status', $request->status);
         }
 
-        $events = $query->paginate(15);
+        $events = $query->get();
 
         return view('admin.event.index', compact('events'));
     }
@@ -83,10 +83,18 @@ class EventController extends Controller
         // Pastikan opd_id adalah integer
         $data['opd_id'] = (int) $data['opd_id'];
         
+        // Hash passkey jika ada
+        if (!empty($data['passkey'])) {
+            $data['passkey'] = password_hash($data['passkey'], PASSWORD_BCRYPT);
+        }
+        
         $event = Event::create($data);
 
         // Generate QR token
         $event->generateQrToken();
+        
+        // Generate shortlink
+        $event->generateShortlink();
 
         return redirect()
             ->route('admin.event.index')
@@ -144,6 +152,14 @@ class EventController extends Controller
         
         // Pastikan opd_id adalah integer
         $data['opd_id'] = (int) $data['opd_id'];
+        
+        // Hash passkey jika ada dan diisi
+        if (!empty($data['passkey'])) {
+            $data['passkey'] = password_hash($data['passkey'], PASSWORD_BCRYPT);
+        } else {
+            // Jika passkey tidak diisi, hapus dari data agar tidak mengoverwrite yang lama
+            unset($data['passkey']);
+        }
         
         $event->update($data);
 

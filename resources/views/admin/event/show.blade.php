@@ -9,6 +9,9 @@
             <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
                 <h6 class="card-title mb-0">{{ $event->nm_event }}</h6>
                 <div class="d-flex gap-2">
+                    <a href="{{ route('admin.event.participants.index', $event) }}" class="btn btn-info waves-effect waves-light">
+                        <i class="fi fi-rr-users-alt me-1"></i> Peserta
+                    </a>
                     <a href="{{ route('admin.event.edit', $event) }}" class="btn btn-primary waves-effect waves-light">
                         <i class="fi fi-rr-edit me-1"></i> Edit
                     </a>
@@ -125,6 +128,46 @@
                                 <i class="fi fi-rr-info me-1"></i>
                                 Gunakan QR code atau URL ini untuk pendaftaran peserta
                             </small>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if($event->shortlink)
+                <div class="mb-4">
+                    <h6 class="mb-3">Draw Page Access</h6>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-2">
+                                <label class="form-label small text-muted mb-1">Shortlink URL:</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="shortlinkInput"
+                                        value="{{ url('/d/' . $event->shortlink) }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyShortlink()"
+                                        title="Copy">
+                                        <i class="fi fi-rr-copy"></i>
+                                    </button>
+                                    <a href="{{ route('draw.show', $event->shortlink) }}" 
+                                       class="btn btn-primary" target="_blank" title="Open Draw Page">
+                                        <i class="fi fi-rr-external-link me-1"></i> Open Draw Page
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="text-muted">
+                                    <i class="fi fi-rr-info me-1"></i>
+                                    Gunakan shortlink ini untuk mengakses halaman pengundian
+                                </small>
+                                @if($event->hasPasskey())
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fi fi-rr-lock me-1"></i> Protected with Passkey
+                                    </span>
+                                @else
+                                    <span class="badge bg-success">
+                                        <i class="fi fi-rr-unlock me-1"></i> Public Access
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -254,6 +297,15 @@ function copyQrUrl() {
     input.setSelectionRange(0, 99999); // For mobile devices
     document.execCommand('copy');
     showToast('success', 'QR URL berhasil disalin!');
+}
+
+// Copy Shortlink to clipboard
+function copyShortlink() {
+    const input = document.getElementById('shortlinkInput');
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    document.execCommand('copy');
+    showToast('success', 'Shortlink berhasil disalin!');
 }
 </script>
 @endpush

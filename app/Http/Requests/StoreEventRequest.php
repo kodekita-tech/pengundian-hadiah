@@ -43,6 +43,9 @@ class StoreEventRequest extends FormRequest
             $rules['opd_id'] = ['nullable', 'exists:opd,id'];
         }
 
+        // Passkey is optional, but if provided must be at least 4 characters
+        $rules['passkey'] = ['nullable', 'string', 'min:4', 'max:255'];
+
         return $rules;
     }
 

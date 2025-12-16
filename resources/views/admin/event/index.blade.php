@@ -18,7 +18,7 @@
 
                 @if($events->count() > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered" style="width:100%">
+                        <table id="eventTable" class="table table-striped table-bordered" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -34,7 +34,7 @@
                             <tbody>
                                 @foreach($events as $index => $event)
                                     <tr>
-                                        <td>{{ $events->firstItem() + $index }}</td>
+                                        <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <strong>{{ $event->nm_event }}</strong>
                                             @if($event->deskripsi)
@@ -64,6 +64,11 @@
                                         <td>{{ $event->created_at->format('d/m/Y H:i') }}</td>
                                         <td>
                                             <div class="d-flex gap-1">
+                                                @if($event->shortlink)
+                                                <a href="{{ route('draw.show', $event->shortlink) }}" class="btn btn-sm btn-success" target="_blank" title="Open Draw Page">
+                                                    <i class="fi fi-rr-arrow-up-right-from-square"></i>
+                                                </a>
+                                                @endif
                                                 <a href="{{ route('admin.event.show', $event) }}" class="btn btn-sm btn-info" title="View">
                                                     <i class="fi fi-rr-eye"></i>
                                                 </a>
@@ -83,9 +88,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
-                    <div class="mt-3">
-                        {{ $events->links() }}
                     </div>
                 @else
                     <div class="text-center py-5">
@@ -113,6 +115,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 <script>
 $(document).ready(function() {
+    // Initialize DataTable
+    $('#eventTable').DataTable({
+        responsive: true,
+        order: [[6, 'desc']], // Sort by Created At desc
+        language: {
+            processing: "Loading...",
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "Showing 0 to 0 of 0 entries",
+            infoFiltered: "(filtered from _MAX_ total entries)",
+            paginate: {
+                next: "<i class='fi fi-rr-angle-right'></i>",
+                previous: "<i class='fi fi-rr-angle-left'></i>"
+            }
+        }
+    });
+
     // Show toast notification for session messages
     @if(session('success'))
         showToast('success', '{{ session('success') }}');
