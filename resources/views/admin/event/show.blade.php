@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="card-body">
-
+                <!-- Event Info Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3 mb-3">
                         <div class="card border-0 shadow-sm">
@@ -44,13 +44,12 @@
                     <div class="col-md-3 mb-3">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">Tanggal Mulai
-                                </h6>
+                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">Tanggal Mulai</h6>
                                 <p class="mb-0">
                                     @if($event->tgl_mulai)
-                                    {{ $event->tgl_mulai->format('d/m/Y H:i') }}
+                                        {{ $event->tgl_mulai->format('d/m/Y H:i') }}
                                     @else
-                                    <span class="text-muted">-</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </p>
                             </div>
@@ -59,13 +58,12 @@
                     <div class="col-md-3 mb-3">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">Tanggal Selesai
-                                </h6>
+                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">Tanggal Selesai</h6>
                                 <p class="mb-0">
                                     @if($event->tgl_selesai)
-                                    {{ $event->tgl_selesai->format('d/m/Y H:i') }}
+                                        {{ $event->tgl_selesai->format('d/m/Y H:i') }}
                                     @else
-                                    <span class="text-muted">-</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </p>
                             </div>
@@ -73,19 +71,20 @@
                     </div>
                 </div>
 
+                <!-- Description -->
                 @if($event->deskripsi)
                 <div class="mb-4">
-                    <h6 class="mb-2">Deskripsi</h6>
-                    <p class="text-muted">{{ $event->deskripsi }}</p>
+                    <h6 class="mb-2 fw-bold">Deskripsi</h6>
+                    <p class="text-muted mb-0">{{ $event->deskripsi }}</p>
                 </div>
                 @endif
 
+                <!-- QR Code Section -->
                 @if($event->qr_token)
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">QR Code</h6>
-                        <form action="{{ route('admin.event.regenerate-qr', $event) }}" method="POST"
-                            class="d-inline regenerate-qr-form" id="regenerateQrForm">
+                        <h6 class="mb-0 fw-bold">QR Code Pendaftaran</h6>
+                        <form action="{{ route('admin.event.regenerate-qr', $event) }}" method="POST" class="d-inline regenerate-qr-form" id="regenerateQrForm">
                             @csrf
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-regenerate-qr">
                                 <i class="fi fi-rr-refresh me-1"></i> Regenerate
@@ -102,24 +101,20 @@
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label small text-muted mb-1">QR Token:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="qrTokenInput"
-                                        value="{{ $event->qr_token }}" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="copyQrToken()"
-                                        title="Copy">
+                                    <input type="text" class="form-control" id="qrTokenInput" value="{{ $event->qr_token }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyQrToken()" title="Copy">
                                         <i class="fi fi-rr-copy"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label small text-muted mb-1">QR Code URL:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="qrUrlInput"
-                                        value="{{ url('/qr/' . $event->qr_token) }}" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="copyQrUrl()"
-                                        title="Copy">
+                                    <input type="text" class="form-control" id="qrUrlInput" value="{{ url('/qr/' . $event->qr_token) }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyQrUrl()" title="Copy">
                                         <i class="fi fi-rr-copy"></i>
                                     </button>
                                 </div>
@@ -133,27 +128,25 @@
                 </div>
                 @endif
 
+                <!-- Draw Page Section -->
                 @if($event->shortlink)
                 <div class="mb-4">
-                    <h6 class="mb-3">Draw Page Access</h6>
+                    <h6 class="mb-3 fw-bold">Halaman Pengundian</h6>
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label small text-muted mb-1">Shortlink URL:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="shortlinkInput"
-                                        value="{{ url('/d/' . $event->shortlink) }}" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="copyShortlink()"
-                                        title="Copy">
+                                    <input type="text" class="form-control" id="shortlinkInput" value="{{ url('/d/' . $event->shortlink) }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyShortlink()" title="Copy">
                                         <i class="fi fi-rr-copy"></i>
                                     </button>
-                                    <a href="{{ route('draw.show', $event->shortlink) }}" 
-                                       class="btn btn-primary" target="_blank" title="Open Draw Page">
-                                        <i class="fi fi-rr-external-link me-1"></i> Open Draw Page
+                                    <a href="{{ route('draw.show', $event->shortlink) }}" class="btn btn-primary" target="_blank" title="Open Draw Page">
+                                        <i class="fi fi-rr-external-link me-1"></i> Buka Halaman
                                     </a>
                                 </div>
                             </div>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <small class="text-muted">
                                     <i class="fi fi-rr-info me-1"></i>
                                     Gunakan shortlink ini untuk mengakses halaman pengundian
@@ -173,32 +166,37 @@
                 </div>
                 @endif
 
+                <!-- Event Metadata -->
                 <div class="mb-4">
-                    <h6 class="mb-2">Informasi Event</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <strong>Dibuat:</strong> {{ $event->created_at->format('d/m/Y H:i') }}
-                        </li>
-                        <li class="mb-2">
-                            <strong>Diperbarui:</strong> {{ $event->updated_at->format('d/m/Y H:i') }}
-                        </li>
-                    </ul>
+                    <h6 class="mb-2 fw-bold">Informasi Event</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <strong>Dibuat:</strong> 
+                                <span class="text-muted">{{ $event->created_at->format('d/m/Y H:i') }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <strong>Diperbarui:</strong> 
+                                <span class="text-muted">{{ $event->updated_at->format('d/m/Y H:i') }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex gap-2">
+                <!-- Status Update -->
+                <div class="border-top pt-3">
+                    <h6 class="mb-3 fw-bold">Ubah Status Event</h6>
                     <form action="{{ route('admin.event.update-status', $event) }}" method="POST" class="d-inline">
                         @csrf
-                        <div class="input-group" style="width: 300px;">
+                        <div class="input-group" style="max-width: 300px;">
                             <select name="status" class="form-select" onchange="this.form.submit()">
                                 <option value="draft" {{ $event->status == 'draft' ? 'selected' : '' }}>Draft</option>
-                                <option value="pendaftaran_dibuka" {{ $event->status == 'pendaftaran_dibuka' ?
-                                    'selected' : '' }}>Pendaftaran Dibuka</option>
-                                <option value="pendaftaran_ditutup" {{ $event->status == 'pendaftaran_ditutup' ?
-                                    'selected' : '' }}>Pendaftaran Ditutup</option>
-                                <option value="pengundian" {{ $event->status == 'pengundian' ? 'selected' : ''
-                                    }}>Pengundian</option>
-                                <option value="selesai" {{ $event->status == 'selesai' ? 'selected' : '' }}>Selesai
-                                </option>
+                                <option value="pendaftaran_dibuka" {{ $event->status == 'pendaftaran_dibuka' ? 'selected' : '' }}>Pendaftaran Dibuka</option>
+                                <option value="pendaftaran_ditutup" {{ $event->status == 'pendaftaran_ditutup' ? 'selected' : '' }}>Pendaftaran Ditutup</option>
+                                <option value="pengundian" {{ $event->status == 'pengundian' ? 'selected' : '' }}>Pengundian</option>
+                                <option value="selesai" {{ $event->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                         </div>
                     </form>
@@ -219,7 +217,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
     // Show toast notification for session messages
     @if(session('success'))
         showToast('success', '{{ session('success') }}');
@@ -261,7 +259,6 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Submit form secara langsung
                 form[0].submit();
             }
         });
@@ -285,7 +282,7 @@ function showToast(type, message) {
 function copyQrToken() {
     const input = document.getElementById('qrTokenInput');
     input.select();
-    input.setSelectionRange(0, 99999); // For mobile devices
+    input.setSelectionRange(0, 99999);
     document.execCommand('copy');
     showToast('success', 'QR Token berhasil disalin!');
 }
@@ -294,7 +291,7 @@ function copyQrToken() {
 function copyQrUrl() {
     const input = document.getElementById('qrUrlInput');
     input.select();
-    input.setSelectionRange(0, 99999); // For mobile devices
+    input.setSelectionRange(0, 99999);
     document.execCommand('copy');
     showToast('success', 'QR URL berhasil disalin!');
 }
@@ -303,7 +300,7 @@ function copyQrUrl() {
 function copyShortlink() {
     const input = document.getElementById('shortlinkInput');
     input.select();
-    input.setSelectionRange(0, 99999); // For mobile devices
+    input.setSelectionRange(0, 99999);
     document.execCommand('copy');
     showToast('success', 'Shortlink berhasil disalin!');
 }
