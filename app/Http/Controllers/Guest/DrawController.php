@@ -9,6 +9,7 @@ use App\Models\Participant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use App\Models\Prize;
 
 class DrawController extends Controller
 {
@@ -32,15 +33,18 @@ class DrawController extends Controller
             }
         }
 
+        // Load prizes
+        $prizes = $event->prizes()->get();
+
         // Load existing winners for display
-        $winners = Winner::with('participant')
+        $winners = Winner::with(['participant', 'prize'])
             ->where('event_id', $event->id)
             ->orderBy('drawn_at', 'desc')
             ->get();
         
-        return view('guest.draw.index', compact('event', 'winners'));
+        return view('guest.draw.index', compact('event', 'winners', 'prizes'));
     }
-    
+
     /**
      * Verify passkey and grant access to draw page.
      */
@@ -92,7 +96,7 @@ class DrawController extends Controller
         
         $request->validate([
             'participant_id' => 'required|exists:participants,id',
-            'prize_name' => 'required|string|max:255',
+            'prize_id' => 'required|exists:prizes,id',
         ]);
 
         try {
@@ -102,20 +106,33 @@ class DrawController extends Controller
                 ->where('event_id', $event->id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            
+            $prize = Prize::where('id', $request->prize_id)
+                ->where('event_id', $event->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
             if ($participant->is_winner) {
                 throw new \Exception('Peserta ini sudah menang sebelumnya.');
+            }
+
+            if (!$prize->isAvailable()) {
+                throw new \Exception('Stok hadiah ini sudah habis.');
             }
 
             // Mark participant as winner
             $participant->is_winner = true;
             $participant->save();
 
+            // Decrement prize stock
+            $prize->decrementStock();
+
             // Create winner record
             $winner = Winner::create([
                 'event_id' => $event->id,
                 'participant_id' => $participant->id,
-                'prize_name' => $request->prize_name,
+                'prize_id' => $prize->id,
+                'prize_name' => $prize->name,
                 'drawn_at' => now(),
             ]);
 
@@ -124,7 +141,7 @@ class DrawController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Pemenang berhasil disimpan.',
-                'winner' => $winner->load('participant'),
+                'winner' => $winner->load(['participant', 'prize']),
             ]);
 
         } catch (\Exception $e) {

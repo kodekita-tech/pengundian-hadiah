@@ -39,118 +39,152 @@
 
                 <!-- Main Content -->
                 <div class="row g-4">
-            <!-- Drawing Area -->
-                    <div class="col-lg-8">
-                        <div class="draw-card">
-                            <!-- Prize Input -->
-                            <div class="prize-input-section">
-                                <label class="prize-label">
-                                    <i class="fi fi-rr-gift"></i>
-                                    <span>Hadiah yang diundi</span>
-                                </label>
-                                <input type="text" 
-                                    class="prize-input" 
-                                    id="prizeName" 
-                                    placeholder="Contoh: Sepeda Motor, Kulkas, dll..." 
-                                    autocomplete="off">
+                    <!-- Drawing Machines Area -->
+                    <div class="col-lg-9" id="machinesArea">
+                        <!-- Controls -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0 text-white fw-bold"><i class="fi fi-rr-gamepad me-2"></i>Area Pengundian</h4>
+                            <div class="d-flex gap-2">
+                                <button id="btnShowWinners" class="btn btn-outline-light fw-bold shadow-sm d-none" data-bs-toggle="modal" data-bs-target="#winnersModal">
+                                    <i class="fi fi-rr-trophy me-2"></i>Lihat Pemenang
+                                </button>
+                                <button id="btnAddNewMachine" class="btn btn-link text-white p-0" title="Tambah Alat Undi">
+                                    <i class="fi fi-rr-add" style="font-size: 1.5rem;"></i>
+                                </button>
                             </div>
-                            
-                            <!-- Drawing Display -->
-                            <div class="draw-display">
-                            <!-- Initial State -->
-                                <div id="drawInitial" class="draw-state">
-                                    <div class="state-icon initial-icon">
-                                        <i class="fi fi-rr-box-open"></i>
-                                </div>
-                                    <h3 class="state-title">Siap untuk mengundi?</h3>
-                                    <p class="state-subtitle">Pastikan peserta sudah diimport oleh panitia</p>
-                            </div>
+                        </div>
 
-                            <!-- Rolling State -->
-                                <div id="drawRolling" class="draw-state d-none">
-                                    <div class="state-icon rolling-icon">
-                                        <i class="fi fi-rr-refresh"></i>
-                                </div>
-                                    <div class="rolling-content">
-                                        <div class="rolling-text" id="rollingCoupon">000000</div>
-                                        <div class="rolling-label">Nomor Kupon</div>
-                                    </div>
-                            </div>
+                        <!-- Machines Container -->
+                        <div id="machinesContainer" class="row g-4">
+                            <!-- Machines will be appended here by JS -->
+                        </div>
 
-                            <!-- Winner State -->
-                                <div id="drawWinner" class="draw-state d-none">
-                                    <div class="winner-celebration">
-                                        <div class="confetti-burst"></div>
-                                        <div class="state-icon winner-icon">
-                                            <i class="fi fi-rr-trophy"></i>
-                                        </div>
+                        <!-- Template for Machine Card -->
+                        <template id="machineTemplate">
+                            <div class="col-md-6 col-xl-4 machine-col animate__animated animate__fadeInUp">
+                                <div class="draw-card h-100 d-flex flex-column">
+                                    <div class="card-header-actions text-end p-2 pb-0">
+                                        <button class="btn btn-link text-danger btn-remove-machine p-0" title="Hapus Alat Undi">
+                                            <i class="fi fi-rr-cross-circle"></i>
+                                        </button>
                                     </div>
-                                    <div class="winner-badge">
-                                        <i class="fi fi-rr-star"></i>
-                                        <span>PEMENANG</span>
-                                        <i class="fi fi-rr-star"></i>
-                                    </div>
-                                    <div class="winner-content">
-                                        <div class="winner-coupon" id="winnerCoupon">000000</div>
-                                        <div class="winner-label">Nomor Kupon</div>
-                                        <div class="winner-prize" id="winnerPrize">
+                                    <!-- Prize Selection -->
+                                    <div class="prize-input-section pt-0">
+                                        <label class="prize-label justify-content-center">
                                             <i class="fi fi-rr-gift"></i>
-                                            <span>Hadiah: -</span>
+                                            <span>Pilih Hadiah</span>
+                                        </label>
+                                        <select class="prize-input form-select form-select-sm machine-prize-select">
+                                            <option value="" selected disabled>-- Pilih Hadiah --</option>
+                                            @foreach($prizes as $prize)
+                                                <option value="{{ $prize->id }}" 
+                                                        data-name="{{ $prize->name }}"
+                                                        data-stock="{{ $prize->stock }}"
+                                                        data-unlimited="{{ $prize->hasStockLimit() ? '0' : '1' }}"
+                                                        {{ !$prize->isAvailable() ? 'disabled' : '' }}>
+                                                    {{ $prize->name }} 
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="text-center mt-1">
+                                            <small class="stock-display text-muted" style="font-size: 0.75rem;">&nbsp;</small>
                                         </div>
-                                </div>
+                                    </div>
+                                    
+                                    <!-- Drawing Display -->
+                                    <div class="draw-display flex-grow-1 py-4" style="min-height: 250px;">
+                                        <!-- Initial State -->
+                                        <div class="draw-state state-initial">
+                                            <div class="state-icon initial-icon mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                                <i class="fi fi-rr-box-open"></i>
+                                            </div>
+                                            <h5 class="state-title fs-5">Siap?</h5>
+                                            <p class="state-subtitle small mb-0">Pilih hadiah dulu</p>
+                                        </div>
+
+                                        <!-- Rolling State -->
+                                        <div class="draw-state state-rolling d-none">
+                                            <div class="state-icon rolling-icon mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                                <i class="fi fi-rr-refresh"></i>
+                                            </div>
+                                            <div class="rolling-content">
+                                                <div class="rolling-text coupon-display mb-0" style="font-size: 2.5rem; letter-spacing: 4px;">000000</div>
+                                                <div class="rolling-label small mt-1">Mengacak...</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Winner State -->
+                                        <div class="draw-state state-winner d-none">
+                                            <div class="winner-celebration mb-2">
+                                                <div class="state-icon winner-icon mb-2" style="width: 80px; height: 80px; font-size: 2rem;">
+                                                    <i class="fi fi-rr-trophy"></i>
+                                                </div>
+                                            </div>
+                                            <div class="winner-badge mb-3 py-1 px-3 fs-6">
+                                                <span>PEMENANG</span>
+                                            </div>
+                                            <div class="winner-content">
+                                                <div class="winner-coupon coupon-display mb-2" style="font-size: 3rem; letter-spacing: 6px;">000000</div>
+                                                <div class="winner-label small mb-2">Nomor Kupon</div>
+                                                <div class="winner-prize py-1 px-2 fs-6">
+                                                    <i class="fi fi-rr-gift me-1"></i>
+                                                    <span class="prize-name-display">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="action-buttons p-3">
+                                        <button class="action-btn btn-start btn-sm py-2">
+                                            <i class="fi fi-rr-play"></i>
+                                            <span>MULAI</span>
+                                        </button>
+                                        <button class="action-btn btn-stop d-none btn-sm py-2">
+                                            <i class="fi fi-rr-stop"></i>
+                                            <span>STOP</span>
+                                        </button>
+                                        <button class="action-btn btn-reset d-none btn-sm py-2">
+                                            <i class="fi fi-rr-refresh"></i>
+                                            <span>RESET</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Action Buttons -->
-                            <div class="action-buttons">
-                                <button class="action-btn btn-start" id="btnStart">
-                                    <i class="fi fi-rr-play"></i>
-                                    <span>MULAI ACAK</span>
-                                </button>
-                                <button class="action-btn btn-stop d-none" id="btnStop">
-                                    <i class="fi fi-rr-stop"></i>
-                                    <span>STOP & PILIH PEMENANG</span>
-                                </button>
-                                <button class="action-btn btn-reset d-none" id="btnReset">
-                                    <i class="fi fi-rr-refresh"></i>
-                                    <span>RESET / UNDI LAGI</span>
-                                </button>
-                        </div>
+                        </template>
                     </div>
-                </div>
 
-                <!-- Winners List -->
-                    <div class="col-lg-4">
-                        <div class="winners-card">
-                            <div class="winners-header">
-                                <i class="fi fi-rr-trophy"></i>
-                                <h3>Daftar Pemenang</h3>
-                        </div>
-                            <div class="winners-list" id="winnerList">
+                    <!-- Winners List Sidebar -->
+                    <div class="col-lg-3" id="winnersSidebar">
+                        <div class="winners-card h-100" id="winnersCardContent">
+                            <div class="winners-header py-3 px-3">
+                                <i class="fi fi-rr-trophy fs-5"></i>
+                                <h3 class="fs-6 mb-0">Daftar Pemenang</h3>
+                            </div>
+                            <div class="winners-list" id="winnerList" style="max-height: calc(100vh - 250px);">
                                 <div class="list-group list-group-flush">
                                 @forelse($winners as $winner)
-                                        <div class="list-group-item winner-item">
-                                            <div class="winner-item-icon">
+                                        <div class="list-group-item winner-item p-3">
+                                            <div class="winner-item-icon" style="width: 36px; height: 36px; font-size: 1rem;">
                                                 <i class="fi fi-rr-trophy"></i>
                                             </div>
                                             <div class="winner-item-content">
-                                                <div class="winner-item-header">
-                                                    <div class="winner-item-name">{{ $winner->participant->name ? substr($winner->participant->name, 0, 2) . str_repeat('*', max(0, strlen($winner->participant->name) - 2)) : '***' }}</div>
-                                                    <div class="winner-item-coupon">{{ $winner->participant->coupon_number }}</div>
+                                                <div class="winner-item-header mb-1">
+                                                    <div class="winner-item-name small">{{ $winner->participant->name ? substr($winner->participant->name, 0, 2) . str_repeat('*', max(0, strlen($winner->participant->name) - 2)) : '***' }}</div>
+                                                    <div class="winner-item-coupon small">{{ $winner->participant->coupon_number }}</div>
                                                 </div>
                                                 <div class="winner-item-footer">
-                                                    <div class="winner-item-prize">
-                                                        <i class="fi fi-rr-gift"></i>
-                                                        <span>{{ $winner->prize_name }}</span>
+                                                    <div class="winner-item-prize small">
+                                                        <i class="fi fi-rr-gift text-primary"></i>
+                                                        <span class="text-truncate" style="max-width: 120px;">{{ $winner->prize_name }}</span>
                                                     </div>
-                                                    <div class="winner-item-time">{{ $winner->drawn_at->format('H:i') }}</div>
                                                 </div>
                                             </div>
                                         </div>
                                     @empty
-                                        <div class="winners-empty">
-                                            <i class="fi fi-rr-confetti"></i>
-                                            <p>Belum ada pemenang</p>
+                                        <div class="winners-empty small">
+                                            <i class="fi fi-rr-confetti mb-2" style="font-size: 2rem;"></i>
+                                            <p class="mb-0">Belum ada pemenang</p>
                                         </div>
                                     @endforelse
                                     </div>
@@ -158,6 +192,20 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Winner List Modal -->
+<div class="modal fade" id="winnersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0" id="modalWinnersBody">
+                <!-- Content will be moved here via JS -->
             </div>
         </div>
     </div>
@@ -815,156 +863,336 @@
 <script>
 $(document).ready(function() {
     let candidates = [];
-    let isRolling = false;
-    let rollInterval;
     const shortlink = "{{ $event->shortlink }}";
     
     // Initialize SimpleBar for winner list
     if (typeof SimpleBar !== 'undefined') {
         new SimpleBar(document.getElementById('winnerList'));
     }
-    
-    // Load candidates on start
-    loadCandidates();
 
+    // --- DRAW MACHINE CLASS ---
+    class DrawMachine {
+        constructor(id, canDelete = true) {
+            this.id = id;
+            this.canDelete = canDelete;
+            this.element = null;
+            this.isRolling = false;
+            this.rollInterval = null;
+            this.candidates = []; 
+            
+            this.render();
+        }
+
+        render() {
+            const template = document.getElementById('machineTemplate');
+            const clone = template.content.cloneNode(true);
+            
+            // Set unique ID for the column
+            const col = clone.querySelector('.machine-col');
+            col.id = `machine-${this.id}`;
+            col.dataset.id = this.id;
+            
+            // Remove button event
+            const btnRemove = clone.querySelector('.btn-remove-machine');
+            if (this.canDelete) {
+                btnRemove.addEventListener('click', () => this.remove());
+            } else {
+                btnRemove.remove(); // Remove button from DOM if not deletable
+            }
+
+            // Bind events for this specific machine
+            const btnStart = clone.querySelector('.btn-start');
+            const btnStop = clone.querySelector('.btn-stop');
+            const btnReset = clone.querySelector('.btn-reset');
+            const prizeSelect = clone.querySelector('.machine-prize-select');
+            
+            btnStart.addEventListener('click', () => this.start());
+            btnStop.addEventListener('click', () => this.stop());
+            btnReset.addEventListener('click', () => this.reset());
+            prizeSelect.addEventListener('change', (e) => this.updateStockDisplay(e.target));
+
+            // Append to container
+            document.getElementById('machinesContainer').appendChild(clone);
+            this.element = document.getElementById(`machine-${this.id}`);
+            
+            // Trigger stock display update initially if value selected
+            this.updateStockDisplay(prizeSelect);
+        }
+
+        remove() {
+            if (this.element && this.canDelete) {
+                this.element.classList.add('animate__fadeOutDown');
+                setTimeout(() => {
+                    this.element.remove();
+                    // Remove from global machines array
+                    machines = machines.filter(m => m.id !== this.id);
+                    checkMachineCount();
+                }, 500);
+            }
+        }
+
+        updateStockDisplay(select) {
+            const option = select.options[select.selectedIndex];
+            const display = this.element.querySelector('.stock-display');
+            
+            if (option && option.value) {
+                const isUnlimited = option.dataset.unlimited === '1';
+                const stock = option.dataset.stock;
+                
+                if (isUnlimited) {
+                     display.textContent = 'Stok: Unlimited';
+                     display.className = 'stock-display text-success fw-bold';
+                } else {
+                     display.textContent = `Stok Tersisa: ${stock}`;
+                     display.className = stock > 0 ? 'stock-display text-primary fw-bold' : 'stock-display text-danger fw-bold';
+                }
+            } else {
+                display.innerHTML = '&nbsp;';
+            }
+        }
+
+        start() {
+            const prizeSelect = this.element.querySelector('.machine-prize-select');
+            const prizeId = prizeSelect.value;
+            
+            if (!prizeId) {
+                $.toast({ text: 'Pilih hadiah dulu!', icon: 'warning', position: 'top-center' });
+                prizeSelect.focus();
+                return;
+            }
+
+            if (candidates.length === 0) {
+                 $.toast({ text: 'Peserta habis!', icon: 'error', position: 'top-center' });
+                return;
+            }
+
+            // Lock UI
+            prizeSelect.disabled = true;
+            if(this.canDelete) {
+                this.element.querySelector('.btn-remove-machine').disabled = true;
+            }
+            
+            // Switch State
+            this.element.querySelector('.state-initial').classList.add('d-none');
+            this.element.querySelector('.state-winner').classList.add('d-none');
+            this.element.querySelector('.state-rolling').classList.remove('d-none');
+            
+            // Buttons
+            this.element.querySelector('.btn-start').classList.add('d-none');
+            this.element.querySelector('.btn-stop').classList.remove('d-none');
+
+            // Animation
+            this.isRolling = true;
+            const display = this.element.querySelector('.rolling-text');
+            this.rollInterval = setInterval(() => {
+                const random = candidates[Math.floor(Math.random() * candidates.length)];
+                display.textContent = random.coupon_number;
+            }, 50);
+        }
+
+        stop() {
+            clearInterval(this.rollInterval);
+            this.isRolling = false;
+            
+            const btnStop = this.element.querySelector('.btn-stop');
+            btnStop.disabled = true;
+            btnStop.innerHTML = '<i class="fi fi-rr-spinner fi-spin"></i>';
+
+            // Pick winner
+            const winnerIndex = Math.floor(Math.random() * candidates.length);
+            const winner = candidates[winnerIndex];
+            const prizeSelect = this.element.querySelector('.machine-prize-select');
+            const prizeId = prizeSelect.value;
+
+            axios.post(`{{ route('draw.winner', $event->shortlink) }}`, {
+                participant_id: winner.id,
+                prize_id: prizeId
+            })
+            .then(res => {
+                this.showWinner(res.data.winner);
+                // Remove from local candidates immediately
+                const idx = candidates.findIndex(c => c.id === winner.id);
+                if (idx > -1) candidates.splice(idx, 1);
+            })
+            .catch(err => {
+                $.toast({ 
+                    text: err.response?.data?.message || 'Gagal menyimpan.', 
+                    icon: 'error',
+                    position: 'top-center'
+                });
+                // Reset on fail
+                this.resetUI();
+            });
+        }
+
+        showWinner(winnerData) {
+            this.element.querySelector('.btn-stop').classList.add('d-none');
+            this.element.querySelector('.btn-stop').disabled = false;
+            this.element.querySelector('.btn-stop').innerHTML = '<i class="fi fi-rr-stop"></i> <span>STOP</span>';
+
+            // Switch State
+            this.element.querySelector('.state-rolling').classList.add('d-none');
+            this.element.querySelector('.state-winner').classList.remove('d-none');
+
+            // Update Winner Info
+            this.element.querySelector('.winner-coupon').textContent = winnerData.participant.coupon_number;
+            this.element.querySelector('.prize-name-display').textContent = winnerData.prize_name;
+
+            // Confetti scoped to this card? (global for now for effect)
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#667eea', '#764ba2', '#f093fb']
+            });
+
+            addWinnerToList(winnerData);
+
+            // Show Reset
+            setTimeout(() => {
+                this.element.querySelector('.btn-reset').classList.remove('d-none');
+            }, 1000);
+        }
+
+        reset() {
+            this.element.querySelector('.state-winner').classList.add('d-none');
+            this.element.querySelector('.state-initial').classList.remove('d-none');
+            
+            this.element.querySelector('.btn-reset').classList.add('d-none');
+            this.element.querySelector('.btn-start').classList.remove('d-none');
+            
+            const prizeSelect = this.element.querySelector('.machine-prize-select');
+            prizeSelect.disabled = false;
+            prizeSelect.value = '';
+            this.updateStockDisplay(prizeSelect);
+            
+            if(this.canDelete) {
+                this.element.querySelector('.btn-remove-machine').disabled = false;
+            }
+        }
+
+        resetUI() {
+             this.element.querySelector('.state-rolling').classList.add('d-none');
+             this.element.querySelector('.state-initial').classList.remove('d-none');
+             
+             const btnStop = this.element.querySelector('.btn-stop');
+             btnStop.classList.add('d-none');
+             btnStop.disabled = false;
+             btnStop.innerHTML = '<i class="fi fi-rr-stop"></i> <span>STOP</span>';
+             
+             this.element.querySelector('.btn-start').classList.remove('d-none');
+             this.element.querySelector('.machine-prize-select').disabled = false;
+             if(this.canDelete) {
+                this.element.querySelector('.btn-remove-machine').disabled = false;
+             }
+        }
+    }
+
+    // --- MANAGE MACHINES ---
+    let machines = [];
+    const MAX_MACHINES = 3;
+
+    function addMachine() {
+        if (machines.length >= MAX_MACHINES) return;
+        
+        const id = Date.now();
+        // First machine cannot be deleted logic handled by check below, 
+        // but explicitly passing false for first one created
+        const canDelete = machines.length > 0; 
+        
+        const machine = new DrawMachine(id, canDelete);
+        machines.push(machine);
+        checkMachineCount();
+    }
+
+    function checkMachineCount() {
+        const count = machines.length;
+        
+        // Button visibility
+        if (count >= MAX_MACHINES) {
+            $('#btnAddNewMachine').hide();
+        } else {
+            $('#btnAddNewMachine').show();
+        }
+
+        // Layout Update
+        updateLayout(count);
+    }
+
+    function updateLayout(count) {
+        const machinesArea = document.getElementById('machinesArea');
+        const winnersSidebar = document.getElementById('winnersSidebar');
+        const winnersCardContent = document.getElementById('winnersCardContent');
+        const modalBody = document.getElementById('modalWinnersBody');
+        const btnShowWinners = document.getElementById('btnShowWinners');
+
+        // Logic for container layout
+        if (count > 1) {
+            // Full Width Mode
+            machinesArea.classList.remove('col-lg-9');
+            machinesArea.classList.add('col-lg-12');
+            
+            winnersSidebar.classList.add('d-none');
+            btnShowWinners.classList.remove('d-none');
+
+            // Move winner list to modal if not already there
+            if (!modalBody.contains(winnersCardContent)) {
+                modalBody.appendChild(winnersCardContent);
+            }
+        } else {
+            // Normal Mode
+            machinesArea.classList.remove('col-lg-12');
+            machinesArea.classList.add('col-lg-9');
+            
+            winnersSidebar.classList.remove('d-none');
+            btnShowWinners.classList.add('d-none');
+
+            // Move winner list back to sidebar if not already there
+            if (!winnersSidebar.contains(winnersCardContent)) {
+                winnersSidebar.appendChild(winnersCardContent);
+            }
+        }
+
+        // Logic for Machine Card resizing (Dynamic Grid)
+        // 1 machine -> col-12
+        // 2 machines -> col-md-6
+        // 3 machines -> col-lg-4
+        const machineCols = document.querySelectorAll('.machine-col');
+        machineCols.forEach(col => {
+            col.className = 'machine-col animate__animated animate__fadeInUp'; // Reset
+            if (count === 1) {
+                col.classList.add('col-12');
+            } else if (count === 2) {
+                col.classList.add('col-md-6');
+            } else {
+                col.classList.add('col-md-6', 'col-lg-4');
+            }
+        });
+    }
+
+    $('#btnAddNewMachine').on('click', addMachine);
+
+    // Initial Machine (Static, non-deletable)
+    addMachine();
+
+
+    // --- LOAD CANDIDATES ---
     function loadCandidates() {
         axios.get(`{{ route('draw.candidates', $event->shortlink) }}`)
             .then(res => {
                 candidates = res.data;
                 if(candidates.length === 0) {
-                     $('#btnStart').prop('disabled', true).html('<i class="fi fi-rr-exclamation-triangle"></i><span>TIDAK ADA PESERTA</span>');
+                     $.toast({ text: 'Tidak ada peserta!', icon: 'error' });
                 }
             })
             .catch(err => {
-                if (err.response && (err.response.status === 401 || err.response.status === 419)) {
-                     window.location.reload();
-                } else {
-                     $.toast({ 
-                         text: 'Gagal memuat peserta.', 
-                         icon: 'error',
-                         position: 'top-center'
-                     });
-                }
+                console.error(err);
+                $.toast({ text: 'Gagal memuat peserta', icon: 'error' });
             });
     }
+    loadCandidates();
 
-    // Start Button
-    $('#btnStart').on('click', function() {
-        const prizeName = $('#prizeName').val().trim();
-        if (!prizeName) {
-            $.toast({ 
-                text: 'Harap isi nama hadiah terlebih dahulu!', 
-                icon: 'warning', 
-                position: 'top-center'
-            });
-            $('#prizeName').focus();
-            return;
-        }
-
-        if (candidates.length === 0) {
-             $.toast({ 
-                text: 'Peserta habis atau belum diimport!', 
-                icon: 'error', 
-                position: 'top-center'
-            });
-            return;
-        }
-
-        // Lock prize input
-        $('#prizeName').prop('disabled', true);
-        
-        // UI Change
-        $('#drawInitial').addClass('d-none');
-        $('#drawWinner').addClass('d-none');
-        $('#drawRolling').removeClass('d-none');
-        
-        $('#btnStart').addClass('d-none');
-        $('#btnStop').removeClass('d-none');
-
-        // Start Animation Loop - Only show coupon number
-        isRolling = true;
-        rollInterval = setInterval(() => {
-            const random = candidates[Math.floor(Math.random() * candidates.length)];
-            $('#rollingCoupon').text(random.coupon_number);
-        }, 50);
-    });
-
-    // Stop Button
-    $('#btnStop').on('click', function() {
-        clearInterval(rollInterval);
-        isRolling = false;
-
-        $(this).prop('disabled', true).html('<i class="fi fi-rr-spinner fi-spin"></i><span>MEMILIH...</span>');
-
-        // Pick random winner from candidates
-        const winnerIndex = Math.floor(Math.random() * candidates.length);
-        const winner = candidates[winnerIndex];
-
-        // Send to backend
-        axios.post(`{{ route('draw.winner', $event->shortlink) }}`, {
-            participant_id: winner.id,
-            prize_name: $('#prizeName').val()
-        })
-        .then(res => {
-            showWinner(res.data.winner);
-             candidates.splice(winnerIndex, 1);
-        })
-        .catch(err => {
-            $.toast({ 
-                text: err.response?.data?.message || 'Gagal menyimpan pemenang.', 
-                icon: 'error',
-                position: 'top-center'
-            });
-             
-             // Reset UI if failed
-             $('#drawRolling').addClass('d-none');
-             $('#drawInitial').removeClass('d-none');
-            $('#btnStop').addClass('d-none').prop('disabled', false).html('<i class="fi fi-rr-stop"></i><span>STOP & PILIH PEMENANG</span>');
-             $('#btnStart').removeClass('d-none');
-             $('#prizeName').prop('disabled', false);
-        });
-    });
-
-    // Reset Button
-    $('#btnReset').on('click', function() {
-        $('#drawWinner').addClass('d-none');
-        $('#drawInitial').removeClass('d-none');
-        
-        $('#btnReset').addClass('d-none');
-        $('#btnStart').removeClass('d-none');
-        
-        $('#prizeName').val('').prop('disabled', false).focus();
-    });
-
-    function showWinner(winnerData) {
-        // Stop button hide
-        $('#btnStop').addClass('d-none').prop('disabled', false).html('<i class="fi fi-rr-stop"></i><span>STOP & PILIH PEMENANG</span>');
-        
-        // Show Winner UI - Only show coupon number
-        $('#drawRolling').addClass('d-none');
-        $('#drawWinner').removeClass('d-none');
-        
-        // Update texts - Only coupon number, no name
-        $('#winnerCoupon').text(winnerData.participant.coupon_number);
-        $('#winnerPrize').html('<i class="fi fi-rr-gift"></i><span>Hadiah: ' + winnerData.prize_name + '</span>');
-        
-        // Confetti!
-        confetti({
-            particleCount: 200,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#ffffff']
-        });
-        
-        // Add to list with masked name
-        addWinnerToList(winnerData);
-        
-        // Show Reset Button
-        setTimeout(() => {
-            $('#btnReset').removeClass('d-none');
-        }, 1000);
-    }
-
+    // --- HELPER: WINNER LIST ---
     function maskName(name) {
         if (!name || name.length === 0) return '***';
         if (name.length <= 2) return name.charAt(0) + '*';
@@ -977,47 +1205,37 @@ $(document).ready(function() {
         const maskedName = maskName(winner.participant.name);
         
         const html = `
-            <div class="list-group-item winner-item animate__animated animate__fadeInLeft">
-                <div class="winner-item-icon">
+            <div class="list-group-item winner-item p-3 animate__animated animate__fadeInLeft">
+                <div class="winner-item-icon" style="width: 36px; height: 36px; font-size: 1rem;">
                     <i class="fi fi-rr-trophy"></i>
                 </div>
                 <div class="winner-item-content">
-                    <div class="winner-item-header">
-                        <div class="winner-item-name">${maskedName}</div>
-                        <div class="winner-item-coupon">${winner.participant.coupon_number}</div>
+                    <div class="winner-item-header mb-1">
+                        <div class="winner-item-name small">${maskedName}</div>
+                        <div class="winner-item-coupon small">${winner.participant.coupon_number}</div>
                     </div>
                     <div class="winner-item-footer">
-                        <div class="winner-item-prize">
-                            <i class="fi fi-rr-gift"></i>
-                            <span>${winner.prize_name}</span>
+                        <div class="winner-item-prize small">
+                            <i class="fi fi-rr-gift text-primary"></i>
+                            <span class="text-truncate" style="max-width: 120px;">${winner.prize_name}</span>
                         </div>
-                        <div class="winner-item-time">${timeStr}</div>
                     </div>
                 </div>
             </div>
         `;
         
-        // Find list-group (should always exist now)
         let $listGroup = $('#winnerList').find('.list-group');
-        
-        // If list-group doesn't exist (shouldn't happen, but just in case)
         if ($listGroup.length === 0) {
-            // Check if there are existing winner items
             const existingItems = $('#winnerList').children('.list-group-item, .winner-item');
             if (existingItems.length > 0) {
-                // Wrap existing items
                 existingItems.wrapAll('<div class="list-group list-group-flush"></div>');
             } else {
-                // Create new list-group only if no items exist
                 $('#winnerList').html('<div class="list-group list-group-flush"></div>');
             }
             $listGroup = $('#winnerList').find('.list-group');
         }
         
-        // Remove "Belum ada pemenang" if exists (inside list-group)
         $listGroup.find('.winners-empty').remove();
-        
-        // Prepend new winner to list-group
         $listGroup.prepend(html);
     }
 
@@ -1025,19 +1243,7 @@ $(document).ready(function() {
     $('#btnCopyLink').on('click', function() {
         const link = window.location.href;
         navigator.clipboard.writeText(link).then(() => {
-            $.toast({ 
-                text: 'Link berhasil disalin!', 
-                position: 'bottom-center',
-                icon: 'success',
-                loader: false
-            });
-        }).catch(() => {
-            $.toast({ 
-                text: 'Gagal menyalin link.', 
-                position: 'bottom-center',
-                icon: 'error',
-                loader: false
-            });
+            $.toast({ text: 'Link berhasil disalin!', position: 'bottom-center', icon: 'success', loader: false });
         });
     });
 });

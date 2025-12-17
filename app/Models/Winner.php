@@ -12,6 +12,7 @@ class Winner extends Model
     protected $fillable = [
         'event_id',
         'participant_id',
+        'prize_id',
         'prize_name',
         'drawn_at',
     ];
@@ -28,5 +29,10 @@ class Winner extends Model
     public function participant()
     {
         return $this->belongsTo(Participant::class);
+    }
+
+    public function prize()
+    {
+        return $this->belongsTo(Prize::class);
     }
 }

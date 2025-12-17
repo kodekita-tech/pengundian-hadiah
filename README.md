@@ -30,22 +30,45 @@ Sistem Pengundian CFD adalah aplikasi web berbasis Laravel yang dirancang untuk 
     -   Pendaftaran Ditutup
     -   Pengundian
     -   Selesai
--   QR Code untuk akses event
--   Tanggal mulai dan selesai event
--   Deskripsi event
--   Relasi dengan OPD
+-   Generate QR Code & Shortlink untuk akses event
+-   Pengaturan Passkey untuk keamanan area pengundian
+-   Monitoring statistik peserta real-time
 
-### 4. Dashboard Admin
+### 4. Manajemen Peserta
+
+-   Import data peserta massal via Excel
+-   Export data peserta per event
+-   Manajemen data peserta (Edit/Delete)
+-   Fitur "Clear Data" untuk reset peserta event
+-   Validasi data peserta (NIK/No HP unik per event)
+
+### 5. Sistem Pengundian (Drawing System)
+
+-   Halaman pengundian khusus (Guest View)
+-   Akses via Shortlink unik (contoh: domain/d/xyz123)
+-   Proteksi halaman undian dengan Passkey
+-   Animasi pengundian interaktif
+-   Pemilihan pemenang secara acak dari peserta terdaftar
+-   Penyimpanan data pemenang otomatis
+
+### 6. Registrasi Mandiri (Self Registration)
+
+-   Akses via Scan QR Code Event
+-   Form pendaftaran publik
+-   Proteksi Captcha untuk mencegah spam
+-   Validasi input real-time
+
+### 7. Dashboard Admin
 
 -   Overview sistem
 -   Statistik dan monitoring
 
-### 5. Profile Management
+### 8. Profile Management
 
 -   Edit profile user
 -   Update password
 
-### 6. Fitur Tambahan
+### 9. Fitur Tambahan
 
 -   Import/Export Excel (Maatwebsite Excel)
 -   DataTables untuk tabel interaktif
@@ -142,6 +165,7 @@ pengundian-cfd/
 │   │   │       ├── DashboardController.php
 │   │   │       ├── EventController.php
 │   │   │       ├── OpdController.php
+│   │   │       ├── ParticipantController.php
 │   │   │       ├── ProfileController.php
 │   │   │       └── UserController.php
 │   │   └── Requests/
@@ -151,7 +175,9 @@ pengundian-cfd/
 │   └── Models/
 │       ├── Event.php
 │       ├── Opd.php
-│       └── User.php
+│       ├── Participant.php
+│       ├── User.php
+│       └── Winner.php
 ├── database/
 │   ├── migrations/
 │   └── seeders/
@@ -200,6 +226,15 @@ pengundian-cfd/
 ### Event
 
 -   id, nm_event, opd_id, status, tgl_mulai, tgl_selesai, deskripsi, qr_token, created_at, updated_at
+-   status: "draft", "pendaftaran_dibuka", "pendaftaran_ditutup", "pengundian", "selesai"
+
+### Participants
+
+-   id, event_id, name, phone, coupon_number, is_winner (boolean), created_at, updated_at
+
+### Winners
+
+-   id, event_id, participant_id, prize_name, drawn_at, created_at, updated_at
 
 ## API Endpoints
 
@@ -209,11 +244,13 @@ pengundian-cfd/
 -   `/admin/users` - User Management
 -   `/admin/opd` - OPD Management
 -   `/admin/event` - Event Management
+-   `/admin/event/{id}/participants` - Participant Management
 -   `/admin/profile` - Profile Management
 
 ### Guest Routes
 
--   `/event/{token}` - Public event access via QR token
+-   `/qr/{token}` - Public registration via QR token
+-   `/d/{shortlink}` - Drawing Access (Shortlink)
 
 ## Development
 

@@ -166,6 +166,127 @@
                 </div>
                 @endif
 
+                <!-- Prize Management Section -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold">Daftar Hadiah</h6>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPrizeModal">
+                            <i class="fi fi-rr-plus me-1"></i> Tambah Hadiah
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nama Hadiah</th>
+                                    <th style="width: 150px;">Stok</th>
+                                    <th style="width: 150px;" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($event->prizes as $prize)
+                                <tr>
+                                    <td>{{ $prize->name }}</td>
+                                    <td>
+                                        @if($prize->hasStockLimit())
+                                            {{ $prize->stock }}
+                                        @else
+                                            <span class="badge bg-success">Unlimited</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-warning me-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editPrizeModal{{ $prize->id }}">
+                                            <i class="fi fi-rr-edit"></i>
+                                        </button>
+                                        <form action="{{ route('admin.event.prizes.destroy', [$event, $prize]) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus hadiah ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fi fi-rr-trash"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade text-start" id="editPrizeModal{{ $prize->id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('admin.event.prizes.update', [$event, $prize]) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Hadiah</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Nama Hadiah</label>
+                                                                <input type="text" name="name" class="form-control" value="{{ $prize->name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <div class="form-check form-switch mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="unlimitedStock{{ $prize->id }}" name="is_unlimited" value="1" {{ !$prize->hasStockLimit() ? 'checked' : '' }} onchange="toggleStockInput('{{ $prize->id }}')">
+                                                                    <label class="form-check-label" for="unlimitedStock{{ $prize->id }}">Stok Unlimited</label>
+                                                                </div>
+                                                                <label class="form-label">Jumlah Stok</label>
+                                                                <input type="number" name="stock" id="stockInput{{ $prize->id }}" class="form-control" value="{{ $prize->stock }}" min="0" {{ !$prize->hasStockLimit() ? 'disabled' : '' }}>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Belum ada hadiah yang ditambahkan</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Prize Modal -->
+                <div class="modal fade" id="addPrizeModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('admin.event.prizes.store', $event) }}" method="POST">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Tambah Hadiah Baru</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nama Hadiah</label>
+                                        <input type="text" name="name" class="form-control" placeholder="Contoh: Sepeda Gunung" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="unlimitedStockNew" name="is_unlimited" value="1" onchange="toggleStockInput('New')">
+                                            <label class="form-check-label" for="unlimitedStockNew">Stok Unlimited</label>
+                                        </div>
+                                        <label class="form-label">Jumlah Stok</label>
+                                        <input type="number" name="stock" id="stockInputNew" class="form-control" value="1" min="0">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Event Metadata -->
                 <div class="mb-4">
                     <h6 class="mb-2 fw-bold">Informasi Event</h6>
@@ -303,6 +424,22 @@ function copyShortlink() {
     input.setSelectionRange(0, 99999);
     document.execCommand('copy');
     showToast('success', 'Shortlink berhasil disalin!');
+}
+
+// Toggle stock input
+function toggleStockInput(id) {
+    const checkbox = document.getElementById('unlimitedStock' + id);
+    const input = document.getElementById('stockInput' + id);
+    
+    if (checkbox.checked) {
+        input.disabled = true;
+        input.value = '';
+    } else {
+        input.disabled = false;
+        if (!input.value) {
+            input.value = 1;
+        }
+    }
 }
 </script>
 @endpush

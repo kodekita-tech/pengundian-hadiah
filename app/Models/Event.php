@@ -214,6 +214,14 @@ class Event extends Model
     }
 
     /**
+     * Get the prizes for the event.
+     */
+    public function prizes()
+    {
+        return $this->hasMany(Prize::class);
+    }
+
+    /**
      * Get the winners for the event.
      */
     public function winners()

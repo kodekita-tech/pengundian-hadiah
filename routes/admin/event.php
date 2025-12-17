@@ -23,4 +23,8 @@ Route::post('/event/{event}/participants/import', [ParticipantController::class,
 Route::get('/event/participants/template', [ParticipantController::class, 'downloadTemplate'])->name('event.participants.template');
 Route::delete('/event/participants/{id}', [ParticipantController::class, 'destroy'])->name('event.participants.destroy');
 Route::delete('/event/{event}/participants/clear', [ParticipantController::class, 'clear'])->name('event.participants.clear');
-
+// Prize Routes
+use App\Http\Controllers\Admin\PrizeController;
+Route::post('/event/{event}/prizes', [PrizeController::class, 'store'])->name('event.prizes.store');
+Route::put('/event/{event}/prizes/{prize}', [PrizeController::class, 'update'])->name('event.prizes.update');
+Route::delete('/event/{event}/prizes/{prize}', [PrizeController::class, 'destroy'])->name('event.prizes.destroy');
