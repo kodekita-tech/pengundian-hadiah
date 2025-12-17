@@ -20,7 +20,7 @@ class OpdController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (auth()->user()->role === 'admin_opd') {
+            if (auth()->user()->role === 'admin_penyelenggara') {
                 abort(403, 'Unauthorized access.');
             }
             return $next($request);
@@ -35,7 +35,7 @@ class OpdController extends Controller
     public function getData(Request $request)
     {
         if ($request->ajax()) {
-            $opd = Opd::select('id', 'nama_instansi', 'singkatan', 'nomor_hp', 'created_at')
+            $opd = Opd::select('id', 'nama_penyelenggara', 'singkatan', 'nomor_hp', 'created_at')
                 ->orderBy('created_at', 'desc')
                 ->orderBy('id', 'desc');
 
@@ -63,7 +63,7 @@ class OpdController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_instansi' => 'required|string|max:255',
+            'nama_penyelenggara' => 'required|string|max:255',
             'singkatan' => 'nullable|string|max:100',
             'nomor_hp' => 'nullable|string|max:20',
         ]);
@@ -77,7 +77,7 @@ class OpdController extends Controller
         }
 
         $opd = Opd::create([
-            'nama_instansi' => $request->nama_instansi,
+            'nama_penyelenggara' => $request->nama_penyelenggara,
             'singkatan' => $request->singkatan,
             'nomor_hp' => $request->nomor_hp,
         ]);
@@ -103,7 +103,7 @@ class OpdController extends Controller
         $opd = Opd::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'nama_instansi' => 'required|string|max:255',
+            'nama_penyelenggara' => 'required|string|max:255',
             'singkatan' => 'nullable|string|max:100',
             'nomor_hp' => 'nullable|string|max:20',
         ]);
@@ -117,7 +117,7 @@ class OpdController extends Controller
         }
 
         $opd->update([
-            'nama_instansi' => $request->nama_instansi,
+            'nama_penyelenggara' => $request->nama_penyelenggara,
             'singkatan' => $request->singkatan,
             'nomor_hp' => $request->nomor_hp,
         ]);
@@ -136,7 +136,7 @@ class OpdController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'OPD deleted successfully'
+            'message' => 'Penyelenggara berhasil dihapus'
         ]);
     }
 
@@ -144,12 +144,12 @@ class OpdController extends Controller
     {
         $data = [
             [
-                'nama_instansi' => 'Dinas Komunikasi dan Informatika',
+                'nama_penyelenggara' => 'Dinas Komunikasi dan Informatika',
                 'singkatan' => 'Diskominfo',
                 'nomor_hp' => '081234567890',
             ],
             [
-                'nama_instansi' => 'Dinas Pemberdayaan Perempuan dan Perlindungan Anak',
+                'nama_penyelenggara' => 'Dinas Pemberdayaan Perempuan dan Perlindungan Anak',
                 'singkatan' => 'DP3AP2KB',
                 'nomor_hp' => '081234567891',
             ],
@@ -171,7 +171,7 @@ class OpdController extends Controller
             public function headings(): array
             {
                 return [
-                    'nama_instansi',
+                    'nama_penyelenggara',
                     'singkatan',
                     'nomor_hp',
                 ];
@@ -210,7 +210,7 @@ class OpdController extends Controller
 
                 try {
                     $validator = Validator::make($row, [
-                        'nama_instansi' => 'required|string|max:255',
+                        'nama_penyelenggara' => 'required|string|max:255',
                         'singkatan' => 'nullable|string|max:100',
                         'nomor_hp' => 'nullable|string|max:20',
                     ]);
@@ -221,7 +221,7 @@ class OpdController extends Controller
                     }
 
                     Opd::updateOrCreate(
-                        ['nama_instansi' => $row['nama_instansi']],
+                        ['nama_penyelenggara' => $row['nama_penyelenggara']],
                         [
                             'singkatan' => $row['singkatan'] ?? null,
                             'nomor_hp' => $row['nomor_hp'] ?? null,

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class Event extends Model
 {
@@ -14,11 +15,8 @@ class Event extends Model
     protected $table = 'event';
 
     // Status constants
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_REGISTRATION_OPEN = 'pendaftaran_dibuka';
-    public const STATUS_REGISTRATION_CLOSED = 'pendaftaran_ditutup';
-    public const STATUS_DRAWING = 'pengundian';
-    public const STATUS_COMPLETED = 'selesai';
+    public const STATUS_ACTIVE = 'aktif';
+    public const STATUS_INACTIVE = 'tidak_aktif';
 
     protected $fillable = [
         'nm_event',
@@ -50,39 +48,35 @@ class Event extends Model
     }
 
     /**
-     * Scope a query to only include events open for registration.
+     * Scope a query to only include active events.
      */
-    public function scopeOpenForRegistration($query)
+    public function scopeActive($query)
     {
-        return $query->where('status', self::STATUS_REGISTRATION_OPEN);
+        return $query->where('status', self::STATUS_ACTIVE);
     }
 
     /**
-     * Scope a query to only include events with closed registration.
+     * Scope a query to only include inactive events.
      */
-    public function scopeRegistrationClosed($query)
+    public function scopeInactive($query)
     {
-        return $query->where('status', self::STATUS_REGISTRATION_CLOSED);
+        return $query->where('status', self::STATUS_INACTIVE);
     }
 
     /**
-     * Check if event is open for registration.
-     * Date range is checked FIRST, then status.
+     * Check if event is currently active (within date range).
      */
-    public function isOpenForRegistration(): bool
+    public function isActive(): bool
     {
-        // First check date range - if date has passed, always return false
-        if ($this->tgl_selesai < now()) {
+        if (!$this->tgl_mulai || !$this->tgl_selesai) {
             return false;
         }
-        
-        if ($this->tgl_mulai > now()) {
-            return false;
-        }
-        
-        // Then check status
-        return $this->status === self::STATUS_REGISTRATION_OPEN || 
-               $this->status === self::STATUS_DRAFT;
+
+        $now = Carbon::now('Asia/Jakarta');
+        $tglMulai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_mulai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+        $tglSelesai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_selesai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+
+        return $tglMulai->lte($now) && $tglSelesai->gte($now);
     }
 
     /**
@@ -90,7 +84,13 @@ class Event extends Model
      */
     public function hasRegistrationPeriodEnded(): bool
     {
-        return $this->tgl_selesai < now();
+        if (!$this->tgl_selesai) {
+            return false;
+        }
+
+        $now = Carbon::now('Asia/Jakarta');
+        $tglSelesai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_selesai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+        return $tglSelesai->lt($now);
     }
 
     /**
@@ -98,7 +98,13 @@ class Event extends Model
      */
     public function hasRegistrationPeriodStarted(): bool
     {
-        return $this->tgl_mulai <= now();
+        if (!$this->tgl_mulai) {
+            return false;
+        }
+
+        $now = Carbon::now('Asia/Jakarta');
+        $tglMulai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_mulai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+        return $tglMulai->lte($now);
     }
 
     /**
@@ -106,15 +112,15 @@ class Event extends Model
      */
     public function isWithinRegistrationPeriod(): bool
     {
-        return $this->hasRegistrationPeriodStarted() && !$this->hasRegistrationPeriodEnded();
+        return $this->isActive();
     }
 
     /**
-     * Alias for isOpenForRegistration() for consistency.
+     * Alias for isActive() for consistency.
      */
     public function isRegistrationOpen(): bool
     {
-        return $this->isOpenForRegistration();
+        return $this->isActive();
     }
 
     /**
@@ -122,7 +128,7 @@ class Event extends Model
      */
     public function isRegistrationClosed(): bool
     {
-        return $this->status === self::STATUS_REGISTRATION_CLOSED;
+        return $this->status === self::STATUS_INACTIVE;
     }
 
     /**
@@ -142,11 +148,8 @@ class Event extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            self::STATUS_DRAFT => 'Draft',
-            self::STATUS_REGISTRATION_OPEN => 'Pendaftaran Dibuka',
-            self::STATUS_REGISTRATION_CLOSED => 'Pendaftaran Ditutup',
-            self::STATUS_DRAWING => 'Pengundian',
-            self::STATUS_COMPLETED => 'Selesai',
+            self::STATUS_ACTIVE => 'Aktif',
+            self::STATUS_INACTIVE => 'Tidak Aktif',
             default => 'Unknown'
         };
     }
@@ -157,11 +160,8 @@ class Event extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match($this->status) {
-            self::STATUS_DRAFT => 'bg-secondary text-white',
-            self::STATUS_REGISTRATION_OPEN => 'bg-success text-white',
-            self::STATUS_REGISTRATION_CLOSED => 'bg-warning text-dark',
-            self::STATUS_DRAWING => 'bg-info text-white',
-            self::STATUS_COMPLETED => 'bg-primary text-white',
+            self::STATUS_ACTIVE => 'bg-success text-white',
+            self::STATUS_INACTIVE => 'bg-secondary text-white',
             default => 'bg-secondary text-white'
         };
     }
@@ -232,25 +232,41 @@ class Event extends Model
     /**
      * Auto-update status based on date range.
      * Call this method whenever event is accessed to ensure status is up-to-date.
+     * Uses Jakarta timezone for date comparison.
+     * Status akan otomatis menjadi "aktif" jika dalam rentang tanggal, "tidak aktif" jika di luar rentang.
      */
     public function autoUpdateStatus(): void
     {
-        $now = now();
-
-        // If registration period has ended but status is still "pendaftaran_dibuka"
-        if ($this->status === self::STATUS_REGISTRATION_OPEN && $this->tgl_selesai < $now) {
-            $this->status = self::STATUS_REGISTRATION_CLOSED;
-            $this->saveQuietly(); // Save without triggering events
+        if (!$this->tgl_mulai || !$this->tgl_selesai) {
+            // Jika tanggal tidak ada, set status menjadi tidak aktif
+            if ($this->status !== self::STATUS_INACTIVE) {
+                $this->status = self::STATUS_INACTIVE;
+                $this->saveQuietly();
+            }
+            return;
         }
 
-        // Optional: Auto-open registration when date starts (uncomment if needed)
-        /*
-        if ($this->status === self::STATUS_DRAFT && 
-            $this->tgl_mulai <= $now && 
-            $this->tgl_selesai >= $now) {
-            $this->status = self::STATUS_REGISTRATION_OPEN;
-            $this->saveQuietly();
+        $now = Carbon::now('Asia/Jakarta');
+        // Ambil nilai datetime dan asumsikan timezone Jakarta
+        $tglMulai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_mulai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+        $tglSelesai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_selesai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
+
+        // Cek apakah dalam rentang tanggal
+        $isWithinDateRange = $tglMulai->lte($now) && $tglSelesai->gte($now);
+
+        // Update status berdasarkan rentang tanggal
+        if ($isWithinDateRange) {
+            // Dalam rentang tanggal = aktif
+            if ($this->status !== self::STATUS_ACTIVE) {
+                $this->status = self::STATUS_ACTIVE;
+                $this->saveQuietly();
+            }
+        } else {
+            // Di luar rentang tanggal = tidak aktif
+            if ($this->status !== self::STATUS_INACTIVE) {
+                $this->status = self::STATUS_INACTIVE;
+                $this->saveQuietly();
+            }
         }
-        */
     }
 }

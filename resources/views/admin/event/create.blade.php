@@ -24,7 +24,7 @@
 
                     @if($canSelectOpd)
                     <div class="mb-3">
-                        <label for="opd_id" class="form-label">OPD <span class="text-danger">*</span></label>
+                        <label for="opd_id" class="form-label">Penyelenggara <span class="text-danger">*</span></label>
                         <select class="form-select @error('opd_id') is-invalid @enderror" 
                                 id="opd_id" name="opd_id" required>
                             @if(old('opd_id'))
@@ -33,7 +33,7 @@
                                 @endphp
                                 @if($selectedOpd)
                                     <option value="{{ $selectedOpd->id }}" selected>
-                                        {{ $selectedOpd->nama_instansi }}{{ $selectedOpd->singkatan ? ' (' . $selectedOpd->singkatan . ')' : '' }}
+                                        {{ $selectedOpd->nama_penyelenggara }}{{ $selectedOpd->singkatan ? ' (' . $selectedOpd->singkatan . ')' : '' }}
                                     </option>
                                 @endif
                             @endif
@@ -48,7 +48,7 @@
                     @else
                     <div class="alert alert-danger">
                         <i class="fi fi-rr-exclamation-triangle me-1"></i>
-                        User tidak memiliki OPD yang terdaftar. Silakan hubungi administrator.
+                        User tidak memiliki Penyelenggara yang terdaftar. Silakan hubungi administrator.
                     </div>
                     @endif
                     @endif
@@ -57,16 +57,13 @@
                         <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                         <select class="form-select @error('status') is-invalid @enderror" 
                                 id="status" name="status" required>
-                            <option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="pendaftaran_dibuka" {{ old('status') == 'pendaftaran_dibuka' ? 'selected' : '' }}>Pendaftaran Dibuka</option>
-                            <option value="pendaftaran_ditutup" {{ old('status') == 'pendaftaran_ditutup' ? 'selected' : '' }}>Pendaftaran Ditutup</option>
-                            <option value="pengundian" {{ old('status') == 'pengundian' ? 'selected' : '' }}>Pengundian</option>
-                            <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                            <option value="aktif" {{ old('status', 'aktif') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="tidak_aktif" {{ old('status') == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Status "Draft" akan membuat event tanpa membuka pendaftaran</small>
+                        <small class="form-text text-muted">Status akan otomatis di-update berdasarkan tanggal mulai dan tanggal selesai. "Aktif" jika dalam rentang tanggal, "Tidak Aktif" jika di luar rentang.</small>
                     </div>
 
                     <div class="row">
@@ -183,10 +180,10 @@ $(document).ready(function() {
     });
 
     @if($canSelectOpd)
-    // Initialize Select2 for OPD with AJAX
+    // Initialize Select2 for Penyelenggara with AJAX
     $('#opd_id').select2({
         theme: 'bootstrap-5',
-        placeholder: 'Pilih OPD',
+        placeholder: 'Pilih Penyelenggara',
         allowClear: true,
         width: '100%',
         ajax: {

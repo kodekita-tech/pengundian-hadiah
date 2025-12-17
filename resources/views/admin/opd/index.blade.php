@@ -1,19 +1,19 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPD Management')
+@section('title', 'Penyelenggara Management')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
-                <h6 class="card-title mb-0">OPD Management</h6>
+                <h6 class="card-title mb-0">Penyelenggara Management</h6>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-success waves-effect waves-light" id="btnImport" data-bs-toggle="modal" data-bs-target="#importModal">
                         <i class="fi fi-rr-upload me-1"></i> Import
                     </button>
                     <button type="button" class="btn btn-primary waves-effect waves-light" id="btnAdd" data-bs-toggle="modal" data-bs-target="#opdModal">
-                        <i class="fi fi-rr-plus me-1"></i> Add OPD
+                        <i class="fi fi-rr-plus me-1"></i> Tambah Penyelenggara
                     </button>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Instansi</th>
+                                <th>Nama Penyelenggara</th>
                                 <th>Singkatan</th>
                                 <th>Nomor HP</th>
                                 <th>Created At</th>
@@ -44,15 +44,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="opdModalLabel">Add OPD</h5>
+                <h5 class="modal-title" id="opdModalLabel">Tambah Penyelenggara</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="opdForm">
                 <div class="modal-body">
                     <input type="hidden" id="opd_id" name="id">
                     <div class="mb-3">
-                        <label for="nama_instansi" class="form-label">Nama Instansi <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nama_instansi" name="nama_instansi" required>
+                        <label for="nama_penyelenggara" class="form-label">Nama Penyelenggara <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nama_penyelenggara" name="nama_penyelenggara" required>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -80,7 +80,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="importModalLabel">Import OPD</h5>
+                <h5 class="modal-title" id="importModalLabel">Import Penyelenggara</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="importForm" enctype="multipart/form-data">
@@ -101,7 +101,7 @@
                     <div class="alert alert-warning">
                         <small>
                             <strong>Kolom yang diperlukan:</strong><br>
-                            - nama_instansi (required)<br>
+                            - nama_penyelenggara (required)<br>
                             - singkatan (optional)<br>
                             - nomor_hp (optional)
                         </small>
@@ -149,7 +149,7 @@ $(document).ready(function() {
         },
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'nama_instansi', name: 'nama_instansi' },
+            { data: 'nama_penyelenggara', name: 'nama_penyelenggara' },
             { data: 'singkatan', name: 'singkatan' },
             { data: 'nomor_hp', name: 'nomor_hp' },
             { data: 'created_at', name: 'created_at' },
@@ -189,7 +189,7 @@ $(document).ready(function() {
     function resetForm() {
         $('#opdForm')[0].reset();
         $('#opd_id').val('');
-        $('#opdModalLabel').text('Add OPD');
+        $('#opdModalLabel').text('Tambah Penyelenggara');
         $('.invalid-feedback').text('');
         $('.form-control').removeClass('is-invalid');
         isEdit = false;
@@ -235,19 +235,19 @@ $(document).ready(function() {
         const id = $(this).data('id');
         isEdit = true;
         resetForm();
-        $('#opdModalLabel').text('Edit OPD');
+        $('#opdModalLabel').text('Edit Penyelenggara');
 
         axios.get(`{{ url('admin/opd') }}/${id}`)
             .then(function(response) {
                 const opd = response.data.data;
                 $('#opd_id').val(opd.id);
-                $('#nama_instansi').val(opd.nama_instansi);
+                $('#nama_penyelenggara').val(opd.nama_penyelenggara);
                 $('#singkatan').val(opd.singkatan);
                 $('#nomor_hp').val(opd.nomor_hp);
                 $('#opdModal').modal('show');
             })
             .catch(function(error) {
-                showToast('error', 'Failed to load OPD data');
+                showToast('error', 'Gagal memuat data Penyelenggara');
             });
     });
 
@@ -260,7 +260,7 @@ $(document).ready(function() {
         const method = id ? 'put' : 'post';
 
         const formData = new FormData();
-        formData.append('nama_instansi', $('#nama_instansi').val());
+        formData.append('nama_penyelenggara', $('#nama_penyelenggara').val());
         formData.append('singkatan', $('#singkatan').val() || '');
         formData.append('nomor_hp', $('#nomor_hp').val() || '');
         
@@ -327,7 +327,7 @@ $(document).ready(function() {
                         }, 100);
                     })
                     .catch(function(error) {
-                        showToast('error', error.response?.data?.message || 'Failed to delete OPD');
+                        showToast('error', error.response?.data?.message || 'Gagal menghapus Penyelenggara');
                     });
             }
         });

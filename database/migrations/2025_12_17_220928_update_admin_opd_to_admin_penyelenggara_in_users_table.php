@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('opd', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_penyelenggara');
-            $table->string('singkatan')->nullable();
-            $table->string('nomor_hp')->nullable();
-            $table->timestamps();
-        });
+        \DB::table('users')
+            ->where('role', 'admin_opd')
+            ->update(['role' => 'admin_penyelenggara']);
     }
 
     /**
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('opd');
+        \DB::table('users')
+            ->where('role', 'admin_penyelenggara')
+            ->update(['role' => 'admin_opd']);
     }
 };

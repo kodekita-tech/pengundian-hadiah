@@ -28,7 +28,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>OPD</th>
+                                <th>Penyelenggara</th>
                                 <th>Created At</th>
                                 <th>Action</th>
                             </tr>
@@ -79,9 +79,9 @@
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="opd_id" class="form-label">OPD</label>
+                        <label for="opd_id" class="form-label">Penyelenggara</label>
                         <select class="form-select" id="opd_id" name="opd_id">
-                            <option value="">Select OPD (Optional)</option>
+                            <option value="">Pilih Penyelenggara (Opsional)</option>
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
@@ -112,14 +112,14 @@
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="default_opd_id" class="form-label">Default OPD</label>
+                        <label for="default_opd_id" class="form-label">Default Penyelenggara</label>
                         <select class="form-select" id="default_opd_id" name="default_opd_id">
-                            <option value="">Select OPD (Optional)</option>
-                            @foreach(\App\Models\Opd::orderBy('nama_instansi')->get() as $opd)
-                            <option value="{{ $opd->id }}">{{ $opd->nama_instansi }}</option>
+                            <option value="">Pilih Penyelenggara (Opsional)</option>
+                            @foreach(\App\Models\Opd::orderBy('nama_penyelenggara')->get() as $opd)
+                            <option value="{{ $opd->id }}">{{ $opd->nama_penyelenggara }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">OPD yang akan digunakan jika tidak ada di Excel</small>
+                        <small class="text-muted">Penyelenggara yang akan digunakan jika tidak ada di Excel</small>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="alert alert-info">
@@ -136,17 +136,17 @@
                             - name (required)<br>
                             - email (required)<br>
                             - password (required, min 8 characters)<br>
-                            - role (required, harus: admin_opd - gunakan dropdown di Excel)<br>
-                            - opd (optional, pilih dari dropdown di Excel. Akan menggunakan Default OPD jika kosong)
+                            - role (required, harus: admin_penyelenggara - gunakan dropdown di Excel)<br>
+                            - opd (optional, pilih dari dropdown di Excel. Akan menggunakan Default Penyelenggara jika kosong)
                         </small>
                     </div>
                     <div class="alert alert-info">
                         <small>
                             <strong>Catatan:</strong><br>
-                            - Template Excel memiliki 2 sheet: "Data Users" (untuk import) dan "Daftar OPD"
+                            - Template Excel memiliki 2 sheet: "Data Users" (untuk import) dan "Daftar Penyelenggara"
                             (referensi)<br>
-                            - Kolom "role" memiliki dropdown dengan pilihan: admin_opd<br>
-                            - Kolom "opd" memiliki dropdown yang mengambil data dari sheet "Daftar OPD"<br>
+                            - Kolom "role" memiliki dropdown dengan pilihan: admin_penyelenggara<br>
+                            - Kolom "opd" memiliki dropdown yang mengambil data dari sheet "Daftar Penyelenggara"<br>
                             - Hanya import sheet "Data Users" saja
                         </small>
                     </div>
@@ -219,7 +219,7 @@
         const roles = [
             {id: 'superadmin', text: 'Super Admin'},
             {id: 'developer', text: 'Developer'},
-            {id: 'admin_opd', text: 'Admin OPD'}
+            {id: 'admin_penyelenggara', text: 'Admin Penyelenggara'}
         ];
         
         $('#role').append('<option value="">Select Role</option>');
@@ -248,7 +248,7 @@
         }
         
         $('#opd_id').empty();
-        $('#opd_id').append('<option value="">Select OPD (Optional)</option>');
+        $('#opd_id').append('<option value="">Pilih Penyelenggara (Opsional)</option>');
         
         if (selectedValue && selectedText) {
             $('#opd_id').append(new Option(selectedText, selectedValue, true, true));
@@ -256,7 +256,7 @@
         
         $('#opd_id').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Select OPD (Optional)',
+            placeholder: 'Pilih Penyelenggara (Opsional)',
             allowClear: true,
             width: '100%',
             dropdownParent: $('#userModal'),
@@ -437,14 +437,14 @@
                     email: user.email,
                     role: role || user.role,
                     opd_id: opdId || user.opd_id,
-                    opd: opdName ? { nama_instansi: opdName } : (user.opd || null)
+                    opd: opdName ? { nama_penyelenggara: opdName } : (user.opd || null)
                 };
                 
                 editUserData = userData;
                 
                 const roleValue = userData.role || null;
                 const opdIdValue = userData.opd_id || null;
-                const opdTextValue = (userData.opd && userData.opd.nama_instansi) ? userData.opd.nama_instansi : null;
+                const opdTextValue = (userData.opd && userData.opd.nama_penyelenggara) ? userData.opd.nama_penyelenggara : null;
                 
                 $('#userModal').modal('show');
                 

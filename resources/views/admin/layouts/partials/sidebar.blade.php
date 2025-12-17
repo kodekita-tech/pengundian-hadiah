@@ -12,8 +12,8 @@
     </div>
     <nav class="app-navbar" data-simplebar>
         <ul class="menubar">
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('admin.dashboard') }}">
+            <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a class="menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="fi fi-rr-apps"></i>
                     <span class="menu-label">Dashboard</span>
                 </a>
@@ -21,22 +21,22 @@
             <li class="menu-heading">
                 <span class="menu-label">Management</span>
             </li>
-            @if(auth()->user()->role !== 'admin_opd')
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('admin.users.index') }}">
+            @if(auth()->user()->role !== 'admin_penyelenggara')
+            <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <a class="menu-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                     <i class="fi fi-rr-users"></i>
                     <span class="menu-label">Users</span>
                 </a>
             </li>
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('admin.opd.index') }}">
+            <li class="menu-item {{ request()->routeIs('admin.opd.*') ? 'active' : '' }}">
+                <a class="menu-link {{ request()->routeIs('admin.opd.*') ? 'active' : '' }}" href="{{ route('admin.opd.index') }}">
                     <i class="fi fi-rr-building"></i>
-                    <span class="menu-label">OPD</span>
+                    <span class="menu-label">Penyelenggara</span>
                 </a>
             </li>
             @endif
-            <li class="menu-item">
-                <a class="menu-link" href="{{ route('admin.event.index') }}">
+            <li class="menu-item {{ request()->routeIs('admin.event.*') ? 'active' : '' }}">
+                <a class="menu-link {{ request()->routeIs('admin.event.*') ? 'active' : '' }}" href="{{ route('admin.event.index') }}">
                     <i class="fi fi-rr-calendar"></i>
                     <span class="menu-label">Event</span>
                 </a>

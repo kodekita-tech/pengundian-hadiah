@@ -67,8 +67,8 @@
                                     <i class="fi fi-rr-building"></i>
                                 </div>
                                 <div class="info-content">
-                                    <div class="info-label">OPD</div>
-                                    <div class="info-value">{{ $event->opd->nama_instansi }}</div>
+                                    <div class="info-label">Penyelenggara</div>
+                                    <div class="info-value">{{ $event->opd->nama_penyelenggara }}</div>
                                 </div>
                             </div>
                             @endif

@@ -51,8 +51,8 @@
                                     <i class="fi fi-rr-building"></i>
                                 </div>
                                 <div class="info-content">
-                                    <span class="info-label">Organisasi</span>
-                                    <span class="info-value">{{ $event->opd->nama_instansi }}</span>
+                                    <span class="info-label">Penyelenggara</span>
+                                    <span class="info-value">{{ $event->opd->nama_penyelenggara }}</span>
                                 </div>
                             </div>
                             @endif
@@ -73,6 +73,10 @@
                             <div class="data-item">
                                 <div class="data-label">Nomor HP</div>
                                 <div class="data-value">{{ $participant->phone }}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Asal</div>
+                                <div class="data-value">{{ $participant->asal }}</div>
                             </div>
                             <div class="data-item highlight">
                                 <div class="data-label">

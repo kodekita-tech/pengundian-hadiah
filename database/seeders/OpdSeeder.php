@@ -13,14 +13,30 @@ class OpdSeeder extends Seeder
      */
     public function run(): void
     {
-        $opd = Opd::updateOrCreate(
-            ['nama_instansi' => 'Pemkot Blitar'],
+        $opds = [
             [
-                'nama_instansi' => 'Pemkot Blitar',
+                'nama_penyelenggara' => 'Pemkot Blitar',
                 'singkatan' => 'Pemkot Blitar',
                 'nomor_hp' => null,
-            ]
-        );
+            ],
+            [
+                'nama_penyelenggara' => 'Penyelenggara A',
+                'singkatan' => 'Penyelenggara A',
+                'nomor_hp' => null,
+            ],
+            [
+                'nama_penyelenggara' => 'Penyelenggara B',
+                'singkatan' => 'Penyelenggara B',
+                'nomor_hp' => null,
+            ],
+        ];
+
+        foreach ($opds as $opd) {
+            Opd::updateOrCreate(
+                ['nama_penyelenggara' => $opd['nama_penyelenggara']],
+                $opd
+            );
+        }
     }
 }
 

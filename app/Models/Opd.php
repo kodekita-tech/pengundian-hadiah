@@ -12,7 +12,7 @@ class Opd extends Model
     protected $table = 'opd';
 
     protected $fillable = [
-        'nama_instansi',
+        'nama_penyelenggara',
         'singkatan',
         'nomor_hp',
     ];

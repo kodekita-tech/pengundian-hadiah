@@ -35,7 +35,7 @@
                             @if($event->opd)
                             <div class="meta-item">
                                 <i class="fi fi-rr-building"></i>
-                                <span>{{ $event->opd->nama_instansi }}</span>
+                                <span>{{ $event->opd->nama_penyelenggara }}</span>
                             </div>
                             @endif
                         </div>
@@ -108,6 +108,27 @@
                                     <i class="fi fi-rr-info"></i>
                                     <span>Nomor HP akan digunakan untuk verifikasi dan notifikasi</span>
                                 </div>
+                            </div>
+
+                            <!-- Asal Field -->
+                            <div class="form-group">
+                                <label for="asal" class="form-label">
+                                    <i class="fi fi-rr-marker"></i>
+                                    <span>Asal <span class="required">*</span></span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" class="form-input @error('asal') is-invalid @enderror" id="asal"
+                                        name="asal" placeholder="Masukkan asal Anda" value="{{ old('asal') }}" required>
+                                    <div class="input-icon">
+                                        <i class="fi fi-rr-marker"></i>
+                                    </div>
+                                </div>
+                                @error('asal')
+                                <div class="error-message">
+                                    <i class="fi fi-rr-exclamation-circle"></i>
+                                    {{ $message }}
+                                </div>
+                                @enderror
                             </div>
 
                             <!-- Captcha Field -->

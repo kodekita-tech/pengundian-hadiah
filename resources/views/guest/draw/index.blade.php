@@ -25,7 +25,7 @@
                         @if($event->opd)
                         <div class="meta-item">
                             <i class="fi fi-rr-building"></i>
-                            <span>{{ $event->opd->nama_instansi }}</span>
+                            <span>{{ $event->opd->nama_penyelenggara }}</span>
                         </div>
                         @endif
                     </div>

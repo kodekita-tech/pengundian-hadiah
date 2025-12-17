@@ -23,7 +23,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Event</th>
-                                    <th>OPD</th>
+                                    <th>Penyelenggara</th>
                                     <th>Status</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
@@ -41,7 +41,7 @@
                                                 <br><small class="text-muted">{{ \Illuminate\Support\Str::limit($event->deskripsi, 50) }}</small>
                                             @endif
                                         </td>
-                                        <td>{{ $event->opd->nama_instansi ?? '-' }}</td>
+                                        <td>{{ $event->opd->nama_penyelenggara ?? '-' }}</td>
                                         <td>
                                             <span class="badge {{ $event->status_badge_class }} rounded-pill px-2 py-1">
                                                 {{ $event->status_label }}

@@ -27,9 +27,9 @@ class EventController extends Controller
 
         $user = $request->user();
         
-        // Filter by opd_id only for admin_opd role
+        // Filter by opd_id only for admin_penyelenggara role
         // Superadmin and Developer can see all events
-        if ($user && $user->role === 'admin_opd' && $user->opd_id) {
+        if ($user && $user->role === 'admin_penyelenggara' && $user->opd_id) {
             $query->where('opd_id', $user->opd_id);
         }
 
@@ -39,6 +39,11 @@ class EventController extends Controller
         }
 
         $events = $query->get();
+        
+        // Auto-update status untuk semua event sebelum ditampilkan
+        foreach ($events as $event) {
+            $event->autoUpdateStatus();
+        }
 
         return view('admin.event.index', compact('events'));
     }
@@ -62,13 +67,13 @@ class EventController extends Controller
         $user = Auth::user();
         $data = $request->validated();
         
-        // Jika user adalah admin_opd, set opd_id dari user (override dari form)
-        if ($user->role === 'admin_opd') {
+        // Jika user adalah admin_penyelenggara, set opd_id dari user (override dari form)
+        if ($user->role === 'admin_penyelenggara') {
             if (empty($user->opd_id)) {
                 return redirect()
                     ->back()
                     ->withInput()
-                    ->withErrors(['opd_id' => 'User tidak memiliki OPD yang terdaftar. Silakan hubungi administrator.']);
+                    ->withErrors(['opd_id' => 'User tidak memiliki Penyelenggara yang terdaftar. Silakan hubungi administrator.']);
             }
             // Force set opd_id dari user, abaikan dari form
             $data['opd_id'] = (int) $user->opd_id;
@@ -79,7 +84,7 @@ class EventController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['opd_id' => 'OPD wajib dipilih.']);
+                    ->withErrors(['opd_id' => 'Penyelenggara wajib dipilih.']);
         }
         
         // Pastikan opd_id adalah integer
@@ -108,6 +113,10 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
+        // Auto-update status berdasarkan tanggal sebelum ditampilkan
+        $event->autoUpdateStatus();
+        $event->refresh();
+        
         $event->load(['opd']);
 
         return view('admin.event.show', compact('event'));
@@ -118,6 +127,10 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
+        // Auto-update status berdasarkan tanggal sebelum ditampilkan
+        $event->autoUpdateStatus();
+        $event->refresh();
+        
         $user = Auth::user();
         $canSelectOpd = in_array($user->role, ['superadmin', 'developer']);
         
@@ -132,13 +145,13 @@ class EventController extends Controller
         $user = Auth::user();
         $data = $request->validated();
         
-        // Jika user adalah admin_opd, set opd_id dari user (override dari form)
-        if ($user->role === 'admin_opd') {
+        // Jika user adalah admin_penyelenggara, set opd_id dari user (override dari form)
+        if ($user->role === 'admin_penyelenggara') {
             if (empty($user->opd_id)) {
                 return redirect()
                     ->back()
                     ->withInput()
-                    ->withErrors(['opd_id' => 'User tidak memiliki OPD yang terdaftar. Silakan hubungi administrator.']);
+                    ->withErrors(['opd_id' => 'User tidak memiliki Penyelenggara yang terdaftar. Silakan hubungi administrator.']);
             }
             // Force set opd_id dari user, abaikan dari form
             $data['opd_id'] = (int) $user->opd_id;
@@ -149,7 +162,7 @@ class EventController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['opd_id' => 'OPD wajib dipilih.']);
+                    ->withErrors(['opd_id' => 'Penyelenggara wajib dipilih.']);
         }
         
         // Pastikan opd_id adalah integer
@@ -188,13 +201,13 @@ class EventController extends Controller
     public function updateStatus(Request $request, Event $event)
     {
         $request->validate([
-            'status' => ['required', 'in:draft,pendaftaran_dibuka,pendaftaran_ditutup,pengundian,selesai']
+            'status' => ['required', 'in:aktif,tidak_aktif']
         ]);
 
         $event->update(['status' => $request->status]);
 
-        // Regenerate QR token if status changed to registration open
-        if ($request->status === Event::STATUS_REGISTRATION_OPEN && !$event->qr_token) {
+        // Regenerate QR token if status changed to active and QR token doesn't exist
+        if ($request->status === Event::STATUS_ACTIVE && !$event->qr_token) {
             $event->generateQrToken();
         }
 
@@ -231,13 +244,13 @@ class EventController extends Controller
         
         $search = $request->get('search', '');
 
-        $query = Opd::select('id', 'nama_instansi', 'singkatan')
-            ->orderBy('nama_instansi', 'asc');
+        $query = Opd::select('id', 'nama_penyelenggara', 'singkatan')
+            ->orderBy('nama_penyelenggara', 'asc');
 
         // Filter by search term
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
-                $q->where('nama_instansi', 'like', "%{$search}%")
+                $q->where('nama_penyelenggara', 'like', "%{$search}%")
                   ->orWhere('singkatan', 'like', "%{$search}%");
             });
         }
@@ -247,7 +260,7 @@ class EventController extends Controller
         $results = $opds->map(function($opd) {
             return [
                 'id' => $opd->id,
-                'text' => $opd->nama_instansi . ($opd->singkatan ? ' (' . $opd->singkatan . ')' : '')
+                'text' => $opd->nama_penyelenggara . ($opd->singkatan ? ' (' . $opd->singkatan . ')' : '')
             ];
         });
 

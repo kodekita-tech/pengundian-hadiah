@@ -24,22 +24,22 @@ class StoreEventRequest extends FormRequest
     {
         $eventId = $this->route('event')?->id;
         $user = $this->user();
-        $isAdminOpd = $user && $user->role === 'admin_opd';
+        $isAdminOpd = $user && $user->role === 'admin_penyelenggara';
 
         $rules = [
             'nm_event' => ['required', 'string', 'max:255'],
-            'status' => ['required', Rule::in(['draft', 'pendaftaran_dibuka', 'pendaftaran_ditutup', 'pengundian', 'selesai'])],
+            'status' => ['required', Rule::in(['aktif', 'tidak_aktif'])],
             'tgl_mulai' => ['nullable', 'date_format:Y-m-d H:i'],
             'tgl_selesai' => ['nullable', 'date_format:Y-m-d H:i', 'after:tgl_mulai'],
             'deskripsi' => ['nullable', 'string'],
         ];
 
-        // Untuk admin_opd, opd_id tidak perlu divalidasi karena akan di-set dari user
+        // Untuk admin_penyelenggara, opd_id tidak perlu divalidasi karena akan di-set dari user
         // Untuk superadmin/developer, opd_id wajib dan harus exists
         if (!$isAdminOpd) {
             $rules['opd_id'] = ['required', 'exists:opd,id'];
         } else {
-            // Untuk admin_opd, tetap validasi jika ada (dari hidden input)
+            // Untuk admin_penyelenggara, tetap validasi jika ada (dari hidden input)
             $rules['opd_id'] = ['nullable', 'exists:opd,id'];
         }
 
@@ -58,8 +58,8 @@ class StoreEventRequest extends FormRequest
     {
         return [
             'nm_event.required' => 'Nama event wajib diisi.',
-            'opd_id.required' => 'OPD wajib dipilih.',
-            'opd_id.exists' => 'OPD yang dipilih tidak valid.',
+            'opd_id.required' => 'Penyelenggara wajib dipilih.',
+            'opd_id.exists' => 'Penyelenggara yang dipilih tidak valid.',
             'status.required' => 'Status event wajib dipilih.',
             'tgl_selesai.after' => 'Tanggal penutupan harus setelah tanggal pembukaan.',
         ];

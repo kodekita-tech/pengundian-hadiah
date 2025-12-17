@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => ['required', 'string', Rule::in(['superadmin', 'developer', 'admin_opd'])],
+            'role' => ['required', 'string', Rule::in(['superadmin', 'developer', 'admin_penyelenggara'])],
             'opd_id' => 'nullable|exists:opd,id',
         ];
     }
@@ -49,7 +49,7 @@ class StoreUserRequest extends FormRequest
             'password.min' => 'Password minimal 8 karakter.',
             'role.required' => 'Role wajib dipilih.',
             'role.in' => 'Role yang dipilih tidak valid.',
-            'opd_id.exists' => 'OPD yang dipilih tidak ditemukan.',
+            'opd_id.exists' => 'Penyelenggara yang dipilih tidak ditemukan.',
         ];
     }
 }

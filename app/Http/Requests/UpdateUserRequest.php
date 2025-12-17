@@ -35,7 +35,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'password' => 'nullable|string|min:8',
-            'role' => ['required', 'string', Rule::in(['superadmin', 'developer', 'admin_opd'])],
+            'role' => ['required', 'string', Rule::in(['superadmin', 'developer', 'admin_penyelenggara'])],
             'opd_id' => 'nullable|exists:opd,id',
         ];
     }
@@ -57,7 +57,7 @@ class UpdateUserRequest extends FormRequest
             'password.min' => 'Password minimal 8 karakter.',
             'role.required' => 'Role wajib dipilih.',
             'role.in' => 'Role yang dipilih tidak valid.',
-            'opd_id.exists' => 'OPD yang dipilih tidak ditemukan.',
+            'opd_id.exists' => 'Penyelenggara yang dipilih tidak ditemukan.',
         ];
     }
 }

@@ -11,7 +11,7 @@ Sistem Pengundian CFD adalah aplikasi web berbasis Laravel yang dirancang untuk 
 ### 1. Manajemen User
 
 -   CRUD User dengan role-based access control
--   Role: Super Admin, Developer, Admin OPD
+-   Role: Super Admin, Developer, Admin Penyelenggara
 -   Setiap user dapat dikaitkan dengan OPD tertentu
 -   Import/Export user via Excel
 -   Validasi dan keamanan data
@@ -208,7 +208,7 @@ pengundian-cfd/
 -   Akses penuh ke semua fitur
 -   Mirip dengan Super Admin
 
-### Admin OPD
+### Admin Penyelenggara
 
 -   Manajemen event untuk OPD sendiri
 -   Akses terbatas sesuai OPD yang ditugaskan
@@ -221,7 +221,7 @@ pengundian-cfd/
 
 ### OPD
 
--   id, nama_instansi, singkatan, nomor_hp, created_at, updated_at
+-   id, nama_penyelenggara, singkatan, nomor_hp, created_at, updated_at
 
 ### Event
 

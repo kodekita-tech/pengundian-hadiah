@@ -36,8 +36,8 @@
                     <div class="col-md-3 mb-3">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">OPD</h6>
-                                <p class="mb-0 fw-bold">{{ $event->opd->nama_instansi ?? '-' }}</p>
+                                <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem;">Penyelenggara</h6>
+                                <p class="mb-0 fw-bold">{{ $event->opd->nama_penyelenggara ?? '-' }}</p>
                             </div>
                         </div>
                     </div>
@@ -313,14 +313,15 @@
                         @csrf
                         <div class="input-group" style="max-width: 300px;">
                             <select name="status" class="form-select" onchange="this.form.submit()">
-                                <option value="draft" {{ $event->status == 'draft' ? 'selected' : '' }}>Draft</option>
-                                <option value="pendaftaran_dibuka" {{ $event->status == 'pendaftaran_dibuka' ? 'selected' : '' }}>Pendaftaran Dibuka</option>
-                                <option value="pendaftaran_ditutup" {{ $event->status == 'pendaftaran_ditutup' ? 'selected' : '' }}>Pendaftaran Ditutup</option>
-                                <option value="pengundian" {{ $event->status == 'pengundian' ? 'selected' : '' }}>Pengundian</option>
-                                <option value="selesai" {{ $event->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="aktif" {{ $event->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="tidak_aktif" {{ $event->status == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                             </select>
                         </div>
                     </form>
+                    <small class="text-muted d-block mt-2">
+                        <i class="fi fi-rr-info me-1"></i>
+                        Status akan otomatis di-update berdasarkan tanggal mulai dan tanggal selesai. "Aktif" jika dalam rentang tanggal, "Tidak Aktif" jika di luar rentang.
+                    </small>
                 </div>
             </div>
         </div>

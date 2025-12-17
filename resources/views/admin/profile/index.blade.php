@@ -7,7 +7,7 @@
 $badgeClass = match($user->role) {
 'superadmin' => 'bg-danger',
 'developer' => 'bg-primary',
-'admin_opd' => 'bg-success',
+'admin_penyelenggara' => 'bg-success',
 default => 'bg-secondary'
 };
 $roleText = ucfirst(str_replace('_', ' ', $user->role));
@@ -46,7 +46,7 @@ $roleText = ucfirst(str_replace('_', ' ', $user->role));
                                 <span class="badge badge-sm px-2 rounded-pill {{ $badgeClass }} text-white">{{ $roleText
                                     }}</span>
                                 @if($user->opd)
-                                <span class="badge badge-sm px-2 rounded-pill text-bg-info">{{ $user->opd->nama_instansi
+                                <span class="badge badge-sm px-2 rounded-pill text-bg-info">{{ $user->opd->nama_penyelenggara
                                     }}</span>
                                 @endif
                             </div>
@@ -81,8 +81,8 @@ $roleText = ucfirst(str_replace('_', ' ', $user->role));
                         </div>
                         @if($user->opd)
                         <div class="mb-3">
-                            <span class="mb-1 d-block text-muted small">OPD</span>
-                            <p class="text-dark fw-semibold mb-0">{{ $user->opd->nama_instansi }}</p>
+                            <span class="mb-1 d-block text-muted small">Penyelenggara</span>
+                            <p class="text-dark fw-semibold mb-0">{{ $user->opd->nama_penyelenggara }}</p>
                             @if($user->opd->singkatan)
                             <small class="text-muted">({{ $user->opd->singkatan }})</small>
                             @endif

@@ -24,7 +24,7 @@ class UserController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (auth()->user()->role === 'admin_opd') {
+            if (auth()->user()->role === 'admin_penyelenggara') {
                 abort(403, 'Unauthorized access.');
             }
             return $next($request);
@@ -52,7 +52,7 @@ class UserController extends Controller
             $roles = [
                 ['id' => 'superadmin', 'text' => 'Super Admin'],
                 ['id' => 'developer', 'text' => 'Developer'],
-                ['id' => 'admin_opd', 'text' => 'Admin OPD'],
+                ['id' => 'admin_penyelenggara', 'text' => 'Admin Penyelenggara'],
             ];
 
             // Filter berdasarkan search jika ada
@@ -76,17 +76,17 @@ class UserController extends Controller
         }
 
         $search = $request->get('search', '');
-        $opds = Opd::select('id', 'nama_instansi')
+        $opds = Opd::select('id', 'nama_penyelenggara')
             ->when($search, function($query) use ($search) {
-                return $query->where('nama_instansi', 'like', '%' . $search . '%')
+                return $query->where('nama_penyelenggara', 'like', '%' . $search . '%')
                              ->orWhere('singkatan', 'like', '%' . $search . '%');
             })
-            ->orderBy('nama_instansi')
+            ->orderBy('nama_penyelenggara')
             ->get()
             ->map(function($opd) {
                 return [
                     'id' => $opd->id,
-                    'text' => $opd->nama_instansi
+                    'text' => $opd->nama_penyelenggara
                 ];
             });
 
@@ -111,7 +111,7 @@ class UserController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function ($user) {
                 $opdId = $user->opd_id ? $user->opd_id : '';
-                $opdName = $user->opd ? htmlspecialchars($user->opd->nama_instansi, ENT_QUOTES, 'UTF-8') : '';
+                $opdName = $user->opd ? htmlspecialchars($user->opd->nama_penyelenggara, ENT_QUOTES, 'UTF-8') : '';
                 
                     $btn = '<div class="d-flex gap-1">
                             <button type="button" class="btn btn-sm btn-primary btn-edit" 
@@ -136,14 +136,14 @@ class UserController extends Controller
                     $badgeClass = match($user->role) {
                         'superadmin' => 'bg-danger',
                         'developer' => 'bg-primary',
-                        'admin_opd' => 'bg-success',
+                        'admin_penyelenggara' => 'bg-success',
                         default => 'bg-secondary'
                     };
                     $roleText = ucfirst(str_replace('_', ' ', $user->role));
                     return '<span class="badge ' . $badgeClass . '">' . $roleText . '</span>';
                 })
             ->addColumn('opd', function ($user) {
-                return $user->opd ? $user->opd->nama_instansi : '-';
+                return $user->opd ? $user->opd->nama_penyelenggara : '-';
             })
                 ->editColumn('created_at', function ($user) {
                     return $user->created_at->format('d M Y');
@@ -285,9 +285,9 @@ class UserController extends Controller
     public function downloadTemplate()
     {
         try {
-            $opds = Opd::select('nama_instansi')
-                ->orderBy('nama_instansi')
-                ->pluck('nama_instansi')
+            $opds = Opd::select('nama_penyelenggara')
+                ->orderBy('nama_penyelenggara')
+                ->pluck('nama_penyelenggara')
                 ->toArray();
         
         $spreadsheet = new Spreadsheet();
@@ -307,27 +307,27 @@ class UserController extends Controller
         $sheet1->setCellValue('A2', 'John Doe');
         $sheet1->setCellValue('B2', 'john.doe@example.com');
         $sheet1->setCellValue('C2', 'password123');
-        $sheet1->setCellValue('D2', 'admin_opd');
+        $sheet1->setCellValue('D2', 'admin_penyelenggara');
         $sheet1->setCellValue('E2', !empty($opds) ? $opds[0] : '');
         
         $sheet1->setCellValue('A3', 'Jane Smith');
         $sheet1->setCellValue('B3', 'jane.smith@example.com');
         $sheet1->setCellValue('C3', 'password123');
-        $sheet1->setCellValue('D3', 'admin_opd');
+        $sheet1->setCellValue('D3', 'admin_penyelenggara');
         $sheet1->setCellValue('E3', !empty($opds) && count($opds) > 1 ? $opds[1] : (!empty($opds) ? $opds[0] : ''));
         
-        // Data validation for role (only admin_opd)
+        // Data validation for role (only admin_penyelenggara)
         $roleValidation = $sheet1->getCell('D2')->getDataValidation();
         $roleValidation->setType(DataValidation::TYPE_LIST);
-        $roleValidation->setFormula1('"admin_opd"');
+        $roleValidation->setFormula1('"admin_penyelenggara"');
         $roleValidation->setShowDropDown(true);
         $roleValidation->setAllowBlank(false);
         $sheet1->setDataValidation('D2:D1000', $roleValidation);
         
-        // Sheet 2: Daftar OPD
+        // Sheet 2: Daftar Penyelenggara
         $sheet2 = $spreadsheet->createSheet();
-        $sheet2->setTitle('Daftar OPD');
-        $sheet2->setCellValue('A1', 'nama_instansi');
+        $sheet2->setTitle('Daftar Penyelenggara');
+        $sheet2->setCellValue('A1', 'nama_penyelenggara');
         
         $row = 2;
         foreach ($opds as $opd) {
@@ -341,12 +341,12 @@ class UserController extends Controller
         // Data validation for OPD (dropdown from Sheet2)
         $opdValidation = $sheet1->getCell('E2')->getDataValidation();
         $opdValidation->setType(DataValidation::TYPE_LIST);
-        $opdValidation->setFormula1('\'Daftar OPD\'!$A$2:$A$' . $lastRow);
+        $opdValidation->setFormula1('\'Daftar Penyelenggara\'!$A$2:$A$' . $lastRow);
         $opdValidation->setShowDropDown(true);
         $opdValidation->setAllowBlank(true);
         $opdValidation->setShowErrorMessage(true);
-        $opdValidation->setErrorTitle('Invalid OPD');
-        $opdValidation->setError('Please select OPD from the dropdown list.');
+        $opdValidation->setErrorTitle('Invalid Penyelenggara');
+        $opdValidation->setError('Silakan pilih Penyelenggara dari dropdown.');
         $sheet1->setDataValidation('E2:E1000', $opdValidation);
         
         // Auto size columns
@@ -405,12 +405,12 @@ class UserController extends Controller
                 $rowNumber = $index + 2; // +2 karena ada header dan index mulai dari 0
 
                 try {
-                    // Get OPD ID from exact match nama_instansi
+                    // Get OPD ID from exact match nama_penyelenggara
                     $opdId = null;
                     if (!empty($row['opd'])) {
                         $opdName = trim($row['opd']);
                         // Try exact match first
-                        $opd = Opd::where('nama_instansi', $opdName)->first();
+                        $opd = Opd::where('nama_penyelenggara', $opdName)->first();
                         if (!$opd) {
                             // Try with singkatan
                             $opd = Opd::where('singkatan', $opdName)->first();
@@ -418,7 +418,7 @@ class UserController extends Controller
                         if ($opd) {
                             $opdId = $opd->id;
                         } else {
-                            $errors[] = "Baris {$rowNumber}: OPD '{$opdName}' tidak ditemukan. Gunakan nama instansi yang tepat dari daftar OPD.";
+                            $errors[] = "Baris {$rowNumber}: Penyelenggara '{$opdName}' tidak ditemukan. Gunakan nama penyelenggara yang tepat dari daftar Penyelenggara.";
                             continue;
                         }
                     }
@@ -428,12 +428,12 @@ class UserController extends Controller
                         $opdId = $defaultOpdId;
                     }
 
-                    // Get role from row - must be admin_opd
-                    $role = !empty($row['role']) ? trim($row['role']) : 'admin_opd';
+                    // Get role from row - must be admin_penyelenggara
+                    $role = !empty($row['role']) ? trim($row['role']) : 'admin_penyelenggara';
                     
-                    // Validate role - only admin_opd allowed
-                    if ($role !== 'admin_opd') {
-                        $errors[] = "Baris {$rowNumber}: Role '{$role}' tidak valid. Role harus 'admin_opd'.";
+                    // Validate role - only admin_penyelenggara allowed
+                    if ($role !== 'admin_penyelenggara') {
+                        $errors[] = "Baris {$rowNumber}: Role '{$role}' tidak valid. Role harus 'admin_penyelenggara'.";
                         continue;
                     }
 

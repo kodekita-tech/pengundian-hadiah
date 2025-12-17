@@ -14,6 +14,7 @@ class Participant extends Model
         'coupon_number',
         'name',
         'phone',
+        'asal',
         'is_winner',
     ];
 

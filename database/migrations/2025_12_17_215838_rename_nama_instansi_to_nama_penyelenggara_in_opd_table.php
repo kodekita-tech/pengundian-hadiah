@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('opd', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_penyelenggara');
-            $table->string('singkatan')->nullable();
-            $table->string('nomor_hp')->nullable();
-            $table->timestamps();
+        Schema::table('opd', function (Blueprint $table) {
+            $table->renameColumn('nama_instansi', 'nama_penyelenggara');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('opd');
+        Schema::table('opd', function (Blueprint $table) {
+            $table->renameColumn('nama_penyelenggara', 'nama_instansi');
+        });
     }
 };

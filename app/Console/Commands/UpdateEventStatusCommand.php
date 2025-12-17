@@ -26,37 +26,20 @@ class UpdateEventStatusCommand extends Command
      */
     public function handle()
     {
-        $now = now();
         $updated = 0;
 
-        // Update events where registration period has ended but status is still "pendaftaran_dibuka"
-        $eventsToClose = Event::where('status', Event::STATUS_REGISTRATION_OPEN)
-            ->where('tgl_selesai', '<', $now)
-            ->get();
+        // Update semua event berdasarkan tanggal menggunakan method autoUpdateStatus()
+        $events = Event::all();
 
-        foreach ($eventsToClose as $event) {
-            $event->status = Event::STATUS_REGISTRATION_CLOSED;
-            $event->save();
-            $updated++;
-            $this->info("Event '{$event->nm_event}' status updated to 'pendaftaran_ditutup' (registration period ended)");
+        foreach ($events as $event) {
+            $oldStatus = $event->status;
+            $event->autoUpdateStatus();
+            
+            if ($oldStatus !== $event->status) {
+                $updated++;
+                $this->info("Event '{$event->nm_event}' status updated from '{$oldStatus}' to '{$event->status}'");
+            }
         }
-
-        // Update events where registration period has started but status is still "draft"
-        // Note: This is optional - you might want to keep draft status even if date has started
-        // Uncomment if you want auto-open registration when date starts
-        /*
-        $eventsToOpen = Event::where('status', Event::STATUS_DRAFT)
-            ->where('tgl_mulai', '<=', $now)
-            ->where('tgl_selesai', '>=', $now)
-            ->get();
-
-        foreach ($eventsToOpen as $event) {
-            $event->status = Event::STATUS_REGISTRATION_OPEN;
-            $event->save();
-            $updated++;
-            $this->info("Event '{$event->nm_event}' status updated to 'pendaftaran_dibuka' (registration period started)");
-        }
-        */
 
         if ($updated === 0) {
             $this->info('No events need status update.');

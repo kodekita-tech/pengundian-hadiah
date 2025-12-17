@@ -15,8 +15,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get Pemkot Blitar OPD
-        $pemkotBlitar = Opd::where('nama_instansi', 'Pemkot Blitar')->first();
+        // Get OPDs
+        $pemkotBlitar = Opd::where('nama_penyelenggara', 'Pemkot Blitar')->first();
+        $penyelenggaraA = Opd::where('nama_penyelenggara', 'Penyelenggara A')->first();
+        $penyelenggaraB = Opd::where('nama_penyelenggara', 'Penyelenggara B')->first();
 
         $users = [
             [
@@ -34,18 +36,18 @@ class UserSeeder extends Seeder
                 'opd_id' => $pemkotBlitar ? $pemkotBlitar->id : null,
             ],
             [
-                'name' => 'Diskominfotik',
-                'email' => 'diskominfotik@blitarkota.go.id',
+                'name' => 'Penyelenggara A',
+                'email' => 'penyelenggara.a@mail.com',
                 'password' => Hash::make('password'),
-                'role' => 'admin_opd',
-                'opd_id' => null,
+                'role' => 'admin_penyelenggara',
+                'opd_id' => $penyelenggaraA ? $penyelenggaraA->id : null,
             ],
             [
-                'name' => 'DP3AP2KB',
-                'email' => 'dp3ap2kb@blitarkota.go.id',
+                'name' => 'Penyelenggara B',
+                'email' => 'penyelenggara.b@mail.com',
                 'password' => Hash::make('password'),
-                'role' => 'admin_opd',
-                'opd_id' => null,
+                'role' => 'admin_penyelenggara',
+                'opd_id' => $penyelenggaraB ? $penyelenggaraB->id : null,
             ],
         ];
 

@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Participant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class QrController extends Controller
 {
@@ -21,22 +22,13 @@ class QrController extends Controller
         $event->autoUpdateStatus();
         $event->refresh(); // Refresh to get updated status
 
-        // Check if event is open for registration
-        // Priority: Date range check FIRST (most important)
-        $isWithinDateRange = $event->tgl_mulai <= now() && $event->tgl_selesai >= now();
-        
-        // If date range has passed, always show closed (regardless of status)
-        if (!$isWithinDateRange) {
-            return view('guest.qr.closed', compact('event'));
-        }
+        // Auto-update status berdasarkan tanggal
+        $event->autoUpdateStatus();
+        $event->refresh();
 
-        // Then check status
-        $isRegistrationOpen = $event->status === Event::STATUS_REGISTRATION_OPEN;
-        
-        // Allow registration if:
-        // 1. Status is pendaftaran_dibuka AND within date range, OR
-        // 2. Status is draft AND within date range (flexible for admin)
-        if (!$isRegistrationOpen && $event->status !== Event::STATUS_DRAFT) {
+        // Check if event is active (within date range)
+        // Status akan otomatis di-update oleh autoUpdateStatus()
+        if ($event->status !== Event::STATUS_ACTIVE) {
             return view('guest.qr.closed', compact('event'));
         }
 
@@ -70,28 +62,13 @@ class QrController extends Controller
     {
         $event = Event::where('qr_token', $token)->firstOrFail();
 
-        // Auto-update status based on date (without scheduler)
+        // Auto-update status berdasarkan tanggal
         $event->autoUpdateStatus();
-        $event->refresh(); // Refresh to get updated status
+        $event->refresh();
 
-        // Priority: Date range check FIRST (most important)
-        // If date range has passed, always reject (regardless of status)
-        $isWithinDateRange = $event->tgl_mulai <= now() && $event->tgl_selesai >= now();
-        
-        if (!$isWithinDateRange) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['event' => 'Pendaftaran untuk event ini sudah ditutup. Periode pendaftaran telah berakhir.']);
-        }
-
-        // Then check status
-        $isRegistrationOpen = $event->status === Event::STATUS_REGISTRATION_OPEN;
-        
-        // Allow registration if:
-        // 1. Status is pendaftaran_dibuka AND within date range, OR
-        // 2. Status is draft AND within date range (flexible for admin)
-        if (!$isRegistrationOpen && $event->status !== Event::STATUS_DRAFT) {
+        // Check if event is active (within date range)
+        // Status akan otomatis di-update oleh autoUpdateStatus()
+        if ($event->status !== Event::STATUS_ACTIVE) {
             return redirect()
                 ->back()
                 ->withInput()
@@ -110,6 +87,7 @@ class QrController extends Controller
                         return $query->where('event_id', $event->id);
                     })
             ],
+            'asal' => ['required', 'string', 'max:255'],
             'captcha' => ['required', 'numeric'],
         ], [
             'name.required' => 'Nama wajib diisi.',
@@ -117,6 +95,8 @@ class QrController extends Controller
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.max' => 'Nomor HP maksimal 20 karakter.',
             'phone.unique' => 'Nomor HP ini sudah terdaftar untuk event ini.',
+            'asal.required' => 'Asal wajib diisi.',
+            'asal.max' => 'Asal maksimal 255 karakter.',
             'captcha.required' => 'Jawaban captcha wajib diisi.',
             'captcha.numeric' => 'Jawaban captcha harus berupa angka.',
         ]);
@@ -142,6 +122,7 @@ class QrController extends Controller
                 'coupon_number' => $couponNumber,
                 'name' => $validated['name'],
                 'phone' => $validated['phone'],
+                'asal' => $validated['asal'],
                 'is_winner' => false,
             ]);
 
