@@ -130,7 +130,7 @@
 <style>
     .success-page-wrapper {
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         position: relative;
         overflow: hidden;
     }
@@ -183,14 +183,14 @@
         left: 0;
         right: 0;
         height: 6px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background: linear-gradient(90deg, #98FB98, #00BFFF);
     }
 
     /* Success Header */
     .success-header {
         text-align: center;
         padding: 3rem 2rem 2rem;
-        background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+        background: linear-gradient(180deg, rgba(152, 251, 152, 0.05) 0%, transparent 100%);
     }
 
     .success-icon-wrapper {
@@ -202,7 +202,7 @@
     .success-icon-circle {
         width: 100px;
         height: 100px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -211,7 +211,7 @@
         font-size: 3rem;
         position: relative;
         z-index: 2;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 191, 255, 0.4);
         animation: scaleIn 0.6s ease-out;
     }
 
@@ -254,7 +254,7 @@
         transform: translate(-50%, -50%);
         width: 100px;
         height: 100px;
-        border: 2px solid rgba(102, 126, 234, 0.3);
+        border: 2px solid rgba(0, 191, 255, 0.3);
         border-radius: 50%;
         animation: ripple 2s infinite;
     }
@@ -282,7 +282,7 @@
     .success-title {
         font-size: 2rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -325,7 +325,7 @@
 
     .section-header i {
         font-size: 1.5rem;
-        color: #667eea;
+        color: #00BFFF;
     }
 
     .section-header h3 {
@@ -346,20 +346,20 @@
         align-items: center;
         gap: 1rem;
         padding: 1rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
         border-radius: 12px;
         transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .info-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 191, 255, 0.15);
     }
 
     .info-icon {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -404,9 +404,9 @@
     }
 
     .data-item.highlight {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border-color: #667eea;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        border-color: #00BFFF;
+        box-shadow: 0 4px 20px rgba(0, 191, 255, 0.2);
     }
 
     .data-label {
@@ -429,7 +429,7 @@
 
     .data-value.coupon-number {
         font-size: 2.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -447,9 +447,9 @@
     .notice-section {
         margin: 2rem;
         padding: 1.5rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
         border-radius: 12px;
-        border-left: 4px solid #667eea;
+        border-left: 4px solid #00BFFF;
     }
 
     .notice-header {
@@ -457,7 +457,7 @@
         align-items: center;
         gap: 0.75rem;
         margin-bottom: 1rem;
-        color: #667eea;
+        color: #00BFFF;
         font-weight: 700;
     }
 
@@ -483,7 +483,7 @@
     }
 
     .notice-list li i {
-        color: #667eea;
+        color: #00BFFF;
         margin-top: 0.2rem;
         flex-shrink: 0;
     }
@@ -515,28 +515,28 @@
     }
 
     .btn-primary-action {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
     }
 
     .btn-primary-action:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5);
         color: white;
     }
 
     .btn-secondary-action {
         background: white;
-        color: #667eea;
-        border: 2px solid #667eea;
+        color: #00BFFF;
+        border: 2px solid #00BFFF;
     }
 
     .btn-secondary-action:hover {
-        background: #667eea;
+        background: #00BFFF;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
     }
 
     /* Print Styles */
@@ -596,7 +596,7 @@
                 particleCount: 100,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: ['#667eea', '#764ba2', '#f093fb', '#ffffff']
+                colors: ['#98FB98', '#00BFFF', '#ffffff']
             });
             
             setTimeout(() => {
@@ -605,7 +605,7 @@
                     angle: 60,
                     spread: 55,
                     origin: { x: 0 },
-                    colors: ['#667eea', '#764ba2']
+                    colors: ['#98FB98', '#00BFFF']
                 });
             }, 250);
             
@@ -615,7 +615,7 @@
                     angle: 120,
                     spread: 55,
                     origin: { x: 1 },
-                    colors: ['#764ba2', '#f093fb']
+                    colors: ['#00BFFF', '#98FB98']
                 });
             }, 400);
         }

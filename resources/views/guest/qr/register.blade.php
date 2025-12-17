@@ -204,7 +204,7 @@
 <style>
     .register-page-wrapper {
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         position: relative;
         overflow: hidden;
         padding: 2rem 0;
@@ -291,14 +291,14 @@
         left: 0;
         right: 0;
         height: 6px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background: linear-gradient(90deg, #98FB98, #00BFFF);
     }
 
     /* Header Section */
     .register-header {
         text-align: center;
         padding: 3rem 2rem 2rem;
-        background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+        background: linear-gradient(180deg, rgba(152, 251, 152, 0.05) 0%, transparent 100%);
     }
 
     .header-icon-wrapper {
@@ -308,14 +308,14 @@
     .header-icon-circle {
         width: 90px;
         height: 90px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 2.5rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 191, 255, 0.4);
         animation: pulse 2s infinite;
     }
 
@@ -324,19 +324,19 @@
         0%,
         100% {
             transform: scale(1);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 191, 255, 0.4);
         }
 
         50% {
             transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 191, 255, 0.6);
         }
     }
 
     .register-title {
         font-size: 1.75rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -360,7 +360,7 @@
     }
 
     .meta-item i {
-        color: #667eea;
+        color: #00BFFF;
     }
 
     .status-badge {
@@ -425,7 +425,7 @@
 
     .form-header i {
         font-size: 1.5rem;
-        color: #667eea;
+        color: #00BFFF;
     }
 
     .form-header h3 {
@@ -451,7 +451,7 @@
     }
 
     .form-label i {
-        color: #667eea;
+        color: #00BFFF;
         font-size: 1rem;
     }
 
@@ -475,8 +475,8 @@
 
     .form-input:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.1);
         transform: translateY(-2px);
     }
 
@@ -493,7 +493,7 @@
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #667eea;
+        color: #00BFFF;
         font-size: 1.1rem;
         pointer-events: none;
     }
@@ -508,7 +508,7 @@
     }
 
     .input-hint i {
-        color: #667eea;
+        color: #00BFFF;
         font-size: 0.9rem;
     }
 
@@ -530,17 +530,17 @@
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
         padding: 1.25rem;
         border-radius: 12px;
-        border-left: 4px solid #667eea;
+        border-left: 4px solid #00BFFF;
         margin-bottom: 2rem;
     }
 
     .info-icon {
         width: 40px;
         height: 40px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -571,7 +571,7 @@
     .submit-button {
         width: 100%;
         padding: 1.25rem 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         color: white;
         border: none;
         border-radius: 12px;
@@ -579,7 +579,7 @@
         font-size: 1.1rem;
         cursor: pointer;
         transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
         margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
@@ -602,7 +602,7 @@
 
     .submit-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5);
     }
 
     .submit-button:active {
@@ -635,7 +635,7 @@
     }
 
     .privacy-notice i {
-        color: #667eea;
+        color: #00BFFF;
     }
 
     /* Captcha */
@@ -650,8 +650,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.875rem 1rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border: 2px solid rgba(102, 126, 234, 0.2);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        border: 2px solid rgba(0, 191, 255, 0.2);
         border-radius: 12px;
         gap: 1rem;
     }
@@ -659,7 +659,7 @@
     .captcha-text {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #667eea;
+        color: #00BFFF;
         font-family: 'Courier New', monospace;
         letter-spacing: 1px;
         flex: 1;
@@ -667,7 +667,7 @@
     }
 
     .captcha-refresh {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border: none;
         border-radius: 8px;
         width: 36px;
@@ -683,7 +683,7 @@
 
     .captcha-refresh:hover {
         transform: rotate(180deg);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
     }
 
     .captcha-refresh:active {

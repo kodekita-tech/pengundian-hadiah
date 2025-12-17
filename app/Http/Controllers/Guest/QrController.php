@@ -18,13 +18,9 @@ class QrController extends Controller
     {
         $event = Event::where('qr_token', $token)->with('opd')->firstOrFail();
 
-        // Auto-update status based on date (without scheduler)
-        $event->autoUpdateStatus();
-        $event->refresh(); // Refresh to get updated status
-
         // Auto-update status berdasarkan tanggal
         $event->autoUpdateStatus();
-        $event->refresh();
+        $event->refresh(); // Refresh to get updated status
 
         // Check if event is active (within date range)
         // Status akan otomatis di-update oleh autoUpdateStatus()

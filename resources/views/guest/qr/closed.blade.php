@@ -31,17 +31,16 @@
                             </div>
                             <div class="alert-content">
                                 <p class="mb-0">
-                                    @if($event->status === \App\Models\Event::STATUS_DRAFT)
-                                    Pendaftaran untuk event ini belum dibuka. Silakan hubungi panitia untuk informasi
-                                    lebih lanjut.
-                                    @elseif($event->status === \App\Models\Event::STATUS_REGISTRATION_CLOSED)
-                                    Pendaftaran untuk event ini sudah ditutup.
-                                    @elseif($event->status === \App\Models\Event::STATUS_DRAWING)
-                                    Event sedang dalam tahap pengundian. Pendaftaran sudah ditutup.
-                                    @elseif($event->status === \App\Models\Event::STATUS_COMPLETED)
-                                    Event ini sudah selesai.
+                                    @if($event->status === \App\Models\Event::STATUS_INACTIVE)
+                                        @if($event->hasRegistrationPeriodEnded())
+                                            Pendaftaran untuk event ini sudah ditutup.
+                                        @elseif(!$event->hasRegistrationPeriodStarted())
+                                            Pendaftaran untuk event ini belum dibuka. Silakan hubungi panitia untuk informasi lebih lanjut.
+                                        @else
+                                            Pendaftaran untuk event ini tidak tersedia saat ini.
+                                        @endif
                                     @else
-                                    Pendaftaran untuk event ini tidak tersedia saat ini.
+                                        Pendaftaran untuk event ini tidak tersedia saat ini.
                                     @endif
                                 </p>
                             </div>
@@ -90,8 +89,11 @@
 <style>
     .closed-page-wrapper {
         min-height: 100vh;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         padding: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .closed-card {
@@ -123,13 +125,13 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: linear-gradient(90deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+        background: linear-gradient(90deg, #98FB98 0%, #00BFFF 100%);
     }
 
     .closed-icon {
         width: 80px;
         height: 80px;
-        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -137,7 +139,7 @@
         color: white;
         font-size: 2rem;
         margin: 0 auto;
-        box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 8px 20px rgba(0, 191, 255, 0.3);
         animation: pulse 2s infinite;
     }
 
@@ -178,8 +180,8 @@
         align-items: flex-start;
         gap: 0.75rem;
         padding: 1rem;
-        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 87, 34, 0.1) 100%);
-        border-left: 3px solid #ffc107;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        border-left: 3px solid #00BFFF;
         border-radius: 10px;
     }
 
@@ -187,7 +189,7 @@
         flex-shrink: 0;
         width: 36px;
         height: 36px;
-        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -198,16 +200,16 @@
 
     .alert-content {
         flex: 1;
-        color: #856404;
+        color: #0066cc;
         font-size: 0.9rem;
         line-height: 1.5;
     }
 
     .closed-info-card {
-        background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
         border-radius: 12px;
         padding: 1rem;
-        border: 1px solid rgba(79, 172, 254, 0.1);
+        border: 1px solid rgba(0, 191, 255, 0.2);
     }
 
     .info-item {
@@ -225,7 +227,7 @@
         flex-shrink: 0;
         width: 40px;
         height: 40px;
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -262,7 +264,7 @@
     }
 
     .closed-footer i {
-        color: #4facfe;
+        color: #00BFFF;
     }
 
     @media (max-width: 768px) {

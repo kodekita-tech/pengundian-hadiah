@@ -231,7 +231,7 @@
 <style>
     .draw-page-wrapper {
         height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         position: relative;
         overflow: hidden;
         display: flex;
@@ -301,7 +301,7 @@
         left: 0;
         right: 0;
         height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background: linear-gradient(90deg, #98FB98, #00BFFF);
         border-radius: 16px 16px 0 0;
     }
 
@@ -319,7 +319,7 @@
     .event-title {
         font-size: 1.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -345,7 +345,7 @@
     }
 
     .meta-item i {
-        color: #667eea;
+        color: #00BFFF;
         font-size: 0.875rem;
     }
 
@@ -369,7 +369,7 @@
     }
 
     .prize-selection-label i {
-        color: #667eea;
+        color: #00BFFF;
         font-size: 1rem;
     }
 
@@ -386,8 +386,8 @@
 
     .prize-selection-input:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
     }
 
     .prize-selection-input:disabled {
@@ -415,7 +415,7 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.625rem 1.25rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         color: white;
         border: none;
         border-radius: 10px;
@@ -423,13 +423,13 @@
         font-size: 0.875rem;
         cursor: pointer;
         transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
         white-space: nowrap;
     }
 
     .copy-link-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
     }
 
     /* Drawing Area */
@@ -473,7 +473,7 @@
         left: 0;
         right: 0;
         height: 6px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background: linear-gradient(90deg, #98FB98, #00BFFF);
     }
 
     /* Remove Button (X) Styling */
@@ -526,7 +526,7 @@
         justify-content: center;
         align-items: center;
         padding: 1rem 0.75rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.05) 0%, rgba(0, 191, 255, 0.05) 100%);
         position: relative;
         overflow: visible;
     }
@@ -539,7 +539,7 @@
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border: 3px solid rgba(255, 255, 255, 0.9);
         color: white;
         font-size: 1.75rem;
@@ -548,7 +548,7 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5), 0 0 0 4px rgba(0, 191, 255, 0.1);
         z-index: 10;
         opacity: 0;
         transform: scale(0.8);
@@ -565,11 +565,11 @@
 
         0%,
         100% {
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5), 0 0 0 4px rgba(0, 191, 255, 0.1);
         }
 
         50% {
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.7), 0 0 0 6px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 6px 25px rgba(0, 191, 255, 0.7), 0 0 0 6px rgba(0, 191, 255, 0.2);
         }
     }
 
@@ -581,8 +581,8 @@
 
     .btn-add-machine-in-card:hover {
         transform: scale(1.15) rotate(90deg) !important;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.8), 0 0 0 8px rgba(102, 126, 234, 0.3) !important;
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 8px 30px rgba(0, 191, 255, 0.8), 0 0 0 8px rgba(0, 191, 255, 0.3) !important;
+        background: linear-gradient(135deg, #00BFFF 0%, #98FB98 100%);
         border-color: rgba(255, 255, 255, 1);
     }
 
@@ -618,11 +618,11 @@
     }
 
     .initial-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
     }
 
     .rolling-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         animation: spin 1s linear infinite;
     }
 
@@ -637,7 +637,7 @@
     }
 
     .winner-icon {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         animation: bounce 0.6s ease-out;
     }
 
@@ -673,7 +673,7 @@
     .rolling-text {
         font-size: 2.5rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -714,7 +714,7 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         color: white;
         padding: 0.5rem 1.5rem;
         border-radius: 50px;
@@ -744,7 +744,7 @@
     .winner-coupon {
         font-size: 3rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -780,12 +780,12 @@
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
         padding: 1rem 2rem;
         border-radius: 12px;
         font-size: 1.1rem;
         font-weight: 700;
-        color: #667eea;
+        color: #00BFFF;
     }
 
     .winner-prize i {
@@ -820,9 +820,9 @@
     }
 
     .btn-start {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%) !important;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -830,7 +830,7 @@
 
     .btn-start:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5);
     }
 
     .btn-start.d-none {
@@ -838,7 +838,7 @@
     }
 
     .btn-stop {
-        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        background: linear-gradient(135deg, #00BFFF 0%, #98FB98 100%);
         color: white;
         box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
     }
@@ -912,7 +912,7 @@
     }
 
     .save-info i {
-        color: #667eea;
+        color: #00BFFF;
         font-size: 1.5rem;
     }
 
@@ -921,7 +921,7 @@
         align-items: center;
         gap: 0.75rem;
         padding: 1rem 2.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         color: white;
         border: none;
         border-radius: 12px;
@@ -929,12 +929,12 @@
         font-size: 1.1rem;
         cursor: pointer;
         transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
     }
 
     .btn-save-winners:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5);
     }
 
     .btn-save-winners:disabled {
@@ -960,13 +960,13 @@
     }
 
     .winner-item:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
     }
 
     .winner-item-icon {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -998,7 +998,7 @@
 
     .winner-item-coupon {
         font-weight: 700;
-        color: #667eea;
+        color: #00BFFF;
         font-size: 1.1rem;
         font-family: 'Courier New', monospace;
         flex-shrink: 0;
@@ -1020,7 +1020,7 @@
     }
 
     .winner-item-prize i {
-        color: #f093fb;
+        color: #00BFFF;
     }
 
     /* Responsive */
@@ -1417,7 +1417,7 @@
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 },
-                    colors: ['#667eea', '#764ba2', '#f093fb']
+                    colors: ['#98FB98', '#00BFFF', '#ffffff']
                 });
 
                 // Show buttons
