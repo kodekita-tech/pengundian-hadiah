@@ -71,7 +71,7 @@ class Event extends Model
         if (!$this->tgl_mulai || !$this->tgl_selesai) {
             return false;
         }
-
+        
         $now = Carbon::now('Asia/Jakarta');
         $tglMulai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_mulai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
         $tglSelesai = Carbon::createFromFormat('Y-m-d H:i:s', $this->tgl_selesai->format('Y-m-d H:i:s'), 'Asia/Jakarta');
@@ -265,7 +265,7 @@ class Event extends Model
             // Di luar rentang tanggal = tidak aktif
             if ($this->status !== self::STATUS_INACTIVE) {
                 $this->status = self::STATUS_INACTIVE;
-                $this->saveQuietly();
+            $this->saveQuietly();
             }
         }
     }

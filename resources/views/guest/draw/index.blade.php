@@ -172,9 +172,6 @@
         </div>
     </div>
 </div>
-</div>
-</div>
-</div>
 
 <!-- Winner List Modal -->
 <div class="modal fade" id="winnersModal" tabindex="-1" aria-hidden="true">

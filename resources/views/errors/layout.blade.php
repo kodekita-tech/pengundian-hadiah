@@ -11,7 +11,8 @@
 	<link rel="icon" type="image/png" href="{{ asset('assets') }}/images/favicon.png">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+		rel="stylesheet">
 	<link rel="stylesheet" href="{{ asset('assets') }}/libs/flaticon/css/all/all.css">
 	<link rel="stylesheet" href="{{ asset('assets') }}/css/styles.css">
 	<style>
@@ -20,18 +21,27 @@
 			padding: 0;
 			box-sizing: border-box;
 		}
-		html, body {
+
+		html,
+		body {
 			height: 100%;
 			width: 100%;
 		}
+
 		body {
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			background: #98FB98;
+			/* Fallback for older browsers */
+			background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+			background-attachment: fixed;
+			background-repeat: no-repeat;
+			background-size: cover;
 			min-height: 100vh;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			padding: 20px;
 		}
+
 		.error-card {
 			background: rgba(255, 255, 255, 0.95);
 			backdrop-filter: blur(10px);
@@ -41,6 +51,7 @@
 			width: 100%;
 			margin: 0 auto;
 		}
+
 		.container {
 			width: 100%;
 			height: 100%;
@@ -56,4 +67,3 @@
 </body>
 
 </html>
-
