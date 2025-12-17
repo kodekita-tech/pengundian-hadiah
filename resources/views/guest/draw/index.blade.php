@@ -9,7 +9,7 @@
         <div class="animated-particles"></div>
     </div>
 
-    <div class="draw-container">
+    <div class="container">
         <!-- Combined Event Header & Prize Selection -->
         <div class="combined-header-card">
             <div class="combined-header-content">
@@ -521,7 +521,6 @@
     /* Draw Display */
     .draw-display {
         min-height: 150px;
-        max-height: 200px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -529,7 +528,7 @@
         padding: 1rem 0.75rem;
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
     }
 
     /* Add Machine Button in Card */
@@ -1134,6 +1133,7 @@
         let allCouponNumbers = []; // Semua nomor kupon untuk visual random
         const shortlink = "{{ $event->shortlink }}";
         let confirmedWinners = []; // Array untuk menyimpan pemenang yang sudah dikonfirmasi
+        let selectedParticipantIds = []; // Melacak ID peserta yang sudah terpilih
 
         // --- GLOBAL PRIZE SELECT ---
         const globalPrizeSelect = document.getElementById('globalPrizeSelect');
@@ -1343,12 +1343,42 @@
                 btnStop.disabled = true;
                 btnStop.innerHTML = '<i class="fi fi-rr-spinner fi-spin"></i>';
 
-                // Pick winner (tidak langsung save ke database)
-                const winnerIndex = Math.floor(Math.random() * candidates.length);
-                const winner = candidates[winnerIndex];
+                // Dapatkan kandidat yang tersedia (belum terpilih di card lain)
+                let availableCandidates = candidates.filter(candidate => 
+                    !selectedParticipantIds.includes(candidate.id)
+                );
+
+                if (availableCandidates.length === 0) {
+                    // Reset all selections if no more unique candidates
+                    selectedParticipantIds = [];
+                    
+                    // Reset other machines
+                    machines.forEach(machine => {
+                        if (machine !== this) {
+                            machine.resetUI();
+                        }
+                    });
+                    
+                    // Get all candidates again
+                    availableCandidates = [...candidates];
+                    
+                    $.toast({ 
+                        text: 'Mengulang dari awal...', 
+                        icon: 'info', 
+                        position: 'top-center',
+                        hideAfter: 2000
+                    });
+                }
+
+                // Pilih pemenang hanya dari kandidat yang tersedia
+                const winnerIndex = Math.floor(Math.random() * availableCandidates.length);
+                const winner = availableCandidates[winnerIndex];
                 const prizeId = globalPrizeSelect.value;
                 const prizeOption = globalPrizeSelect.options[globalPrizeSelect.selectedIndex];
                 const prizeName = prizeOption.dataset.name;
+
+                // Tambahkan ke daftar peserta terpilih
+                selectedParticipantIds.push(winner.id);
 
                 // Simpan hasil sementara
                 this.currentWinner = {
@@ -1398,12 +1428,42 @@
             }
 
             redraw() {
-                // Reset dan mulai ulang
-                this.currentWinner = null;
+                // Hapus dari daftar peserta terpilih jika ada pemenang saat ini
+                if (this.currentWinner) {
+                    selectedParticipantIds = selectedParticipantIds.filter(
+                        id => id !== this.currentWinner.participant_id
+                    );
+                    this.currentWinner = null;
+                    
+                    // Reset selected participants if all candidates are used
+                    const availableCandidates = candidates.filter(candidate => 
+                        !selectedParticipantIds.includes(candidate.id)
+                    );
+                    
+                    if (availableCandidates.length === 0) {
+                        // Reset all selections if no more unique candidates
+                        selectedParticipantIds = [];
+                        
+                        // Also reset other machines' selections
+                        machines.forEach(machine => {
+                            if (machine !== this && machine.currentWinner) {
+                                machine.resetUI();
+                                machine.currentWinner = null;
+                            }
+                        });
+                        
+                        $.toast({ 
+                            text: 'Semua peserta sudah diundi, mengulang dari awal...', 
+                            icon: 'info', 
+                            position: 'top-center',
+                            hideAfter: 2000
+                        });
+                    }
+                }
+                
+                // Reset UI
                 this.element.querySelector('.state-winner').classList.add('d-none');
                 this.element.querySelector('.state-initial').classList.remove('d-none');
-                
-                // Update add button visibility
                 this.updateAddButtonVisibility();
                 
                 this.element.querySelector('.btn-redraw').classList.add('d-none');
@@ -1421,6 +1481,11 @@
                 if (!this.currentWinner) {
                     $.toast({ text: 'Tidak ada pemenang untuk dikonfirmasi!', icon: 'error', position: 'top-center' });
                     return;
+                }
+                
+                // Jika pemenang dihapus dari daftar terpilih (seharusnya tidak terjadi, tapi untuk berjaga-jaga)
+                if (!selectedParticipantIds.includes(this.currentWinner.participant_id)) {
+                    selectedParticipantIds.push(this.currentWinner.participant_id);
                 }
 
                 // Tambahkan ke array confirmedWinners
