@@ -23,12 +23,20 @@ class PrizeController extends Controller
 
         $stock = $request->boolean('is_unlimited') ? null : $request->stock;
 
-        $event->prizes()->create([
+        $prize = $event->prizes()->create([
             'name' => $request->name,
             'stock' => $stock,
         ]);
 
-        return back()->with('success', 'Prize added successfully.');
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hadiah berhasil ditambahkan.',
+                'prize' => $prize
+            ]);
+        }
+
+        return back()->with('success', 'Hadiah berhasil ditambahkan.');
     }
 
     /**
@@ -54,20 +62,39 @@ class PrizeController extends Controller
             'stock' => $stock,
         ]);
 
-        return back()->with('success', 'Prize updated successfully.');
+        $prize->refresh();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hadiah berhasil diperbarui.',
+                'prize' => $prize
+            ]);
+        }
+
+        return back()->with('success', 'Hadiah berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Event $event, Prize $prize)
+    public function destroy(Request $request, Event $event, Prize $prize)
     {
         if ($prize->event_id !== $event->id) {
             abort(403);
         }
 
+        $prizeId = $prize->id;
         $prize->delete();
 
-        return back()->with('success', 'Prize deleted successfully.');
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hadiah berhasil dihapus.',
+                'prize_id' => $prizeId
+            ]);
+        }
+
+        return back()->with('success', 'Hadiah berhasil dihapus.');
     }
 }
