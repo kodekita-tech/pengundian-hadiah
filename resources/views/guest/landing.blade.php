@@ -4,11 +4,35 @@
 
 @section('content')
 <div class="landing-page-wrapper">
+    <!-- Wave Background -->
+    <div class="wave-background">
+        <svg class="wave wave-top" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path fill="rgba(152, 251, 152, 0.1)" fill-opacity="1"
+                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+            </path>
+        </svg>
+        <svg class="wave wave-middle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"
+            preserveAspectRatio="none">
+            <path fill="rgba(0, 191, 255, 0.08)" fill-opacity="1"
+                d="M0,192L48,208C96,224,192,256,288,256C384,256,480,224,576,213.3C672,203,768,213,864,208C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+            </path>
+        </svg>
+        <svg class="wave wave-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"
+            preserveAspectRatio="none">
+            <path fill="rgba(152, 251, 152, 0.1)" fill-opacity="1"
+                d="M0,288L48,272C96,256,192,224,288,224C384,224,480,256,576,261.3C672,267,768,245,864,229.3C960,213,1056,203,1152,197.3C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+            </path>
+        </svg>
+    </div>
+
     <!-- Animated Background Elements -->
     <div class="background-elements">
         <div class="floating-circle circle-1"></div>
         <div class="floating-circle circle-2"></div>
         <div class="floating-circle circle-3"></div>
+        <div class="geometric-shape shape-1"></div>
+        <div class="geometric-shape shape-2"></div>
+        <div class="geometric-shape shape-3"></div>
     </div>
 
     <div class="container">
@@ -182,10 +206,78 @@
 <style>
     .landing-page-wrapper {
         min-height: 100vh;
-        background: #ffffff;
+        /* Final Recommendation: Background menggunakan #00BFFF yang digelapkan 95% */
+        background: #f0f9ff;
+        /* Subtle pattern overlay untuk depth */
+        background-image:
+            radial-gradient(circle at 20% 50%, rgba(0, 191, 255, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(152, 251, 152, 0.02) 0%, transparent 50%);
         padding: 4rem 0;
         position: relative;
         overflow: hidden;
+    }
+
+    /* Subtle gradient overlay untuk depth tambahan */
+    .landing-page-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg,
+                rgba(152, 251, 152, 0.02) 0%,
+                transparent 50%,
+                rgba(0, 191, 255, 0.02) 100%);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* Wave Background */
+    .wave-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .wave {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        opacity: 0.4;
+    }
+
+    .wave-top {
+        top: 0;
+        animation: waveMove 20s ease-in-out infinite;
+    }
+
+    .wave-middle {
+        top: 20%;
+        animation: waveMove 25s ease-in-out infinite reverse;
+        opacity: 0.25;
+    }
+
+    .wave-bottom {
+        bottom: 0;
+        animation: waveMove 30s ease-in-out infinite;
+    }
+
+    @keyframes waveMove {
+
+        0%,
+        100% {
+            transform: translateX(0) translateY(0);
+        }
+
+        50% {
+            transform: translateX(-50px) translateY(20px);
+        }
     }
 
     /* Animated Background Elements */
@@ -202,32 +294,70 @@
     .floating-circle {
         position: absolute;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
-        animation: float 20s infinite ease-in-out;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.12) 0%, rgba(0, 191, 255, 0.12) 100%);
+        animation: float 30s infinite ease-in-out;
+        filter: blur(50px);
     }
 
     .circle-1 {
-        width: 300px;
-        height: 300px;
-        top: -100px;
-        left: -100px;
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        left: -150px;
         animation-delay: 0s;
     }
 
     .circle-2 {
-        width: 200px;
-        height: 200px;
-        bottom: -50px;
-        right: -50px;
+        width: 300px;
+        height: 300px;
+        bottom: -100px;
+        right: -100px;
         animation-delay: 5s;
     }
 
     .circle-3 {
+        width: 250px;
+        height: 250px;
+        top: 60%;
+        right: 15%;
+        animation-delay: 10s;
+    }
+
+    /* Geometric Shapes */
+    .geometric-shape {
+        position: absolute;
+        opacity: 0.06;
+        animation: float 35s infinite ease-in-out;
+    }
+
+    .shape-1 {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        top: 10%;
+        left: 5%;
+        animation-delay: 0s;
+    }
+
+    .shape-2 {
         width: 150px;
         height: 150px;
-        top: 50%;
-        right: 10%;
-        animation-delay: 10s;
+        background: linear-gradient(135deg, #00BFFF 0%, #98FB98 100%);
+        clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+        bottom: 20%;
+        left: 10%;
+        animation-delay: 7s;
+    }
+
+    .shape-3 {
+        width: 180px;
+        height: 180px;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        top: 30%;
+        right: 8%;
+        animation-delay: 14s;
     }
 
     @keyframes float {
@@ -248,7 +378,7 @@
 
     .container {
         position: relative;
-        z-index: 1;
+        z-index: 2;
     }
 
     /* Hero Section */
@@ -373,14 +503,14 @@
     }
 
     .feature-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
         border-radius: 24px;
         padding: 2.5rem 2rem;
         height: 100%;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 191, 255, 0.15);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 191, 255, 0.05);
         position: relative;
         overflow: hidden;
     }
@@ -533,14 +663,14 @@
     }
 
     .step-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
         border-radius: 20px;
         padding: 2rem;
         margin-left: 5rem;
         position: relative;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 191, 255, 0.05);
+        border: 1px solid rgba(0, 191, 255, 0.15);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
