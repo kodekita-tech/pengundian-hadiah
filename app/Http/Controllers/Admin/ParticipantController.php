@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\Winner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -39,7 +40,7 @@ class ParticipantController extends Controller
         }
 
         $participants = Participant::where('event_id', $event->id)
-            ->select('id', 'coupon_number', 'name', 'phone', 'is_winner', 'created_at')
+            ->select('id', 'coupon_number', 'name', 'phone', 'asal', 'is_winner')
             ->orderBy('id', 'desc');
 
         return DataTables::of($participants)
@@ -54,14 +55,14 @@ class ParticipantController extends Controller
                         </div>';
                 return $btn;
             })
+            ->editColumn('asal', function ($participant) {
+                return $participant->asal ?? '-';
+            })
             ->editColumn('is_winner', function ($participant) {
                 if ($participant->is_winner) {
                     return '<span class="badge bg-success">Winner</span>';
                 }
                 return '<span class="badge bg-secondary">Participant</span>';
-            })
-            ->editColumn('created_at', function ($participant) {
-                return $participant->created_at->format('d M Y H:i');
             })
             ->rawColumns(['action', 'is_winner'])
             ->make(true);
@@ -254,12 +255,17 @@ class ParticipantController extends Controller
                 ->orderBy('id', 'desc')
                 ->get();
 
+            // Get all winners for this event to map prize information
+            $winners = Winner::where('event_id', $event->id)
+                ->pluck('prize_name', 'participant_id')
+                ->toArray();
+
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Data Peserta');
 
             // Set headers with styling
-            $headers = ['No', 'No. Kupon', 'Nama', 'No. HP', 'Status', 'Tanggal Daftar'];
+            $headers = ['No', 'No. Kupon', 'Nama', 'No. HP', 'Status', 'Hadiah yang Diterima', 'Tanggal Daftar'];
             $col = 'A';
             foreach ($headers as $header) {
                 $sheet->setCellValue($col . '1', $header);
@@ -278,18 +284,23 @@ class ParticipantController extends Controller
                 $sheet->setCellValue('B' . $row, $participant->coupon_number);
                 $sheet->setCellValue('C' . $row, $participant->name);
                 $sheet->setCellValue('D' . $row, $participant->phone ?? '-');
-                $sheet->setCellValue('E' . $row, $participant->is_winner ? 'Winner' : 'Participant');
-                $sheet->setCellValue('F' . $row, $participant->created_at->format('d M Y H:i'));
+                $sheet->setCellValue('E' . $row, $participant->is_winner ? 'Pemenang' : 'Peserta');
+                
+                // Get prize name if participant is a winner
+                $prizeName = isset($winners[$participant->id]) ? $winners[$participant->id] : '-';
+                $sheet->setCellValue('F' . $row, $prizeName);
+                
+                $sheet->setCellValue('G' . $row, $participant->created_at->format('d M Y H:i'));
                 $row++;
             }
 
             // Auto size columns
-            foreach (range('A', 'F') as $col) {
+            foreach (range('A', 'G') as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
             // Set borders
-            $sheet->getStyle('A1:F' . ($row - 1))->getBorders()->getAllBorders()
+            $sheet->getStyle('A1:G' . ($row - 1))->getBorders()->getAllBorders()
                 ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
             $writer = new Xlsx($spreadsheet);

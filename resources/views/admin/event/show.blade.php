@@ -161,14 +161,14 @@
                                 aria-label="Download QR Code" data-bs-toggle="tooltip" title="Download QR Code">
                                 <i class="fi fi-rr-download me-1"></i> Download
                             </button>
-                            <form action="{{ route('admin.event.regenerate-qr', $event) }}" method="POST"
-                                class="d-inline regenerate-qr-form" id="regenerateQrForm">
-                                @csrf
+                        <form action="{{ route('admin.event.regenerate-qr', $event) }}" method="POST"
+                            class="d-inline regenerate-qr-form" id="regenerateQrForm">
+                            @csrf
                                 <button type="button" class="btn btn-sm btn-outline-secondary btn-regenerate-qr"
                                     aria-label="Regenerate QR Code" data-bs-toggle="tooltip" title="Regenerate QR Code">
-                                    <i class="fi fi-rr-refresh me-1"></i> Regenerate
-                                </button>
-                            </form>
+                                <i class="fi fi-rr-refresh me-1"></i> Regenerate
+                            </button>
+                        </form>
                         </div>
                     </div>
                     <div class="row g-3">
@@ -268,9 +268,9 @@
                                     <th style="width: 150px;" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="prizeTableBody">
                                 @forelse($event->prizes as $prize)
-                                <tr>
+                                <tr data-prize-id="{{ $prize->id }}">
                                     <td>{{ $prize->name }}</td>
                                     <td>
                                         @if($prize->hasStockLimit())
@@ -292,13 +292,13 @@
                                         <button class="btn btn-sm btn-danger btn-delete-prize"
                                             data-id="{{ $prize->id }}" data-name="{{ $prize->name }}"
                                             aria-label="Hapus Hadiah" title="Hapus">
-                                            <i class="fi fi-rr-trash"></i>
+                                                <i class="fi fi-rr-trash"></i>
                                             <span class="visually-hidden">Hapus</span>
-                                        </button>
+                                            </button>
                                     </td>
                                 </tr>
                                 @empty
-                                <tr>
+                                <tr id="prizeEmptyRow">
                                     <td colspan="3" class="text-center text-muted">Belum ada hadiah yang ditambahkan
                                     </td>
                                 </tr>
@@ -314,6 +314,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form id="prizeForm">
+                                @csrf
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="prizeModalLabel">Tambah Hadiah Baru</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -321,6 +322,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" id="prize_id" name="id">
+                                    <input type="hidden" name="_token" id="prize_csrf_token" value="{{ csrf_token() }}">
                                     <div class="mb-3">
                                         <label for="prize_name" class="form-label">Nama Hadiah <span
                                                 class="text-danger">*</span></label>
@@ -642,6 +644,17 @@
         const formData = new FormData(this);
         let url, method;
         
+        // Get CSRF token - prioritize from meta tag, then hidden input, then blade token
+        const csrfToken = $('meta[name="csrf-token"]').attr('content') || 
+                          $('#prize_csrf_token').val() || 
+                          '{{ csrf_token() }}';
+        
+        // Always ensure CSRF token is in FormData (override if exists)
+        formData.set('_token', csrfToken);
+        
+        const wasEditMode = isEditPrize;
+        const editPrizeId = currentPrizeId;
+        
         if (isEditPrize) {
             url = "{{ route('admin.event.prizes.update', [$event, ':id']) }}".replace(':id', currentPrizeId);
             method = 'POST';
@@ -657,15 +670,83 @@
             data: formData,
             processData: false,
             contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(response) {
                 $('#prizeModal').modal('hide');
+                $('#prizeForm')[0].reset();
+                
+                // Reset edit state
+                isEditPrize = false;
+                currentPrizeId = null;
+                $('#prizeModalLabel').text('Tambah Hadiah Baru');
+                $('#unlimitedStock').prop('checked', false);
+                $('#prize_stock').prop('disabled', false);
+                
+                const prize = response.prize;
+                const stockHtml = prize.stock !== null 
+                    ? prize.stock 
+                    : '<span class="badge bg-success">Unlimited</span>';
+                
+                if (wasEditMode) {
+                    // Update existing row
+                    const row = $(`tr[data-prize-id="${prize.id}"]`);
+                    row.find('td:first').text(prize.name);
+                    row.find('td:eq(1)').html(stockHtml);
+                    row.find('.btn-edit-prize')
+                        .attr('data-id', prize.id)
+                        .attr('data-name', prize.name)
+                        .attr('data-stock', prize.stock || '')
+                        .attr('data-is-unlimited', prize.stock === null ? '1' : '0');
+                    row.find('.btn-delete-prize')
+                        .attr('data-id', prize.id)
+                        .attr('data-name', prize.name);
+                } else {
+                    // Add new row
+                    // Remove empty row if exists
+                    $('#prizeEmptyRow').remove();
+                    
+                    const newRow = `
+                        <tr data-prize-id="${prize.id}">
+                            <td>${prize.name}</td>
+                            <td>${stockHtml}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning me-1 btn-edit-prize"
+                                    data-id="${prize.id}" data-name="${prize.name}"
+                                    data-stock="${prize.stock || ''}"
+                                    data-is-unlimited="${prize.stock === null ? '1' : '0'}"
+                                    data-bs-toggle="modal" data-bs-target="#prizeModal" aria-label="Edit Hadiah"
+                                    title="Edit">
+                                    <i class="fi fi-rr-edit"></i>
+                                    <span class="visually-hidden">Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-danger btn-delete-prize"
+                                    data-id="${prize.id}" data-name="${prize.name}"
+                                    aria-label="Hapus Hadiah" title="Hapus">
+                                    <i class="fi fi-rr-trash"></i>
+                                    <span class="visually-hidden">Hapus</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    $('#prizeTableBody').append(newRow);
+                }
+                
+                // Re-initialize tooltips for new/updated buttons
+                initTooltips();
+                
                 showToast('success', response.message || 'Hadiah berhasil disimpan');
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
             },
             error: function(xhr) {
-                if (xhr.status === 422) {
+                if (xhr.status === 419) {
+                    // CSRF token mismatch - reload page
+                    showToast('error', 'Session expired. Halaman akan di-refresh...');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
                     $('.invalid-feedback').text('');
                     $('.form-control').removeClass('is-invalid');
@@ -695,6 +776,7 @@
     $(document).on('click', '.btn-delete-prize', function() {
         const id = $(this).data('id');
         const name = $(this).data('name');
+        const row = $(this).closest('tr');
         
         Swal.fire({
             title: 'Hapus Hadiah?',
@@ -707,22 +789,47 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                const form = $('<form>', {
-                    'method': 'POST',
-                    'action': "{{ route('admin.event.prizes.destroy', [$event, ':id']) }}".replace(':id', id)
+                const csrfToken = $('meta[name="csrf-token"]').attr('content') || '{{ csrf_token() }}';
+                
+                $.ajax({
+                    url: "{{ route('admin.event.prizes.destroy', [$event, ':id']) }}".replace(':id', id),
+                    method: 'POST',
+                    data: {
+                        _token: csrfToken,
+                        _method: 'DELETE'
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        // Remove row from table
+                        row.fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Check if table is empty, show empty message
+                            if ($('#prizeTableBody tr').length === 0) {
+                                $('#prizeTableBody').append(`
+                                    <tr id="prizeEmptyRow">
+                                        <td colspan="3" class="text-center text-muted">Belum ada hadiah yang ditambahkan</td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                        
+                        showToast('success', response.message || 'Hadiah berhasil dihapus');
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 419) {
+                            showToast('error', 'Session expired. Halaman akan di-refresh...');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showToast('error', xhr.responseJSON?.message || 'Gagal menghapus hadiah');
+                        }
+                    }
                 });
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': '_token',
-                    'value': '{{ csrf_token() }}'
-                }));
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': '_method',
-                    'value': 'DELETE'
-                }));
-                $('body').append(form);
-                form.submit();
             }
         });
     });

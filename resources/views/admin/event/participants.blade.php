@@ -12,16 +12,20 @@
                     <p class="text-muted mb-0 small">Kelola data peserta untuk pengundian</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.event.show', $event) }}" class="btn btn-secondary waves-effect waves-light">
+                    <a href="{{ route('admin.event.show', $event) }}"
+                        class="btn btn-secondary waves-effect waves-light">
                         <i class="fi fi-rr-arrow-left me-1"></i> Kembali ke Event
                     </a>
-                    <a href="{{ route('admin.event.participants.export', $event) }}" class="btn btn-info waves-effect waves-light">
+                    <a href="{{ route('admin.event.participants.export', $event) }}"
+                        class="btn btn-info waves-effect waves-light">
                         <i class="fi fi-rr-download me-1"></i> Export Excel
                     </a>
-                    <button type="button" class="btn btn-danger waves-effect waves-light" id="btnClear" onclick="confirmClear()">
+                    <button type="button" class="btn btn-danger waves-effect waves-light" id="btnClear"
+                        onclick="confirmClear()">
                         <i class="fi fi-rr-trash me-1"></i> Hapus Semua
                     </button>
-                    <button type="button" class="btn btn-success waves-effect waves-light" id="btnImport" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <button type="button" class="btn btn-success waves-effect waves-light" id="btnImport"
+                        data-bs-toggle="modal" data-bs-target="#importModal">
                         <i class="fi fi-rr-upload me-1"></i> Import Excel
                     </button>
                 </div>
@@ -35,8 +39,8 @@
                                 <th>No. Kupon</th>
                                 <th>Nama</th>
                                 <th>No. HP</th>
+                                <th>Asal</th>
                                 <th>Status</th>
-                                <th>Diimport Pada</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -68,7 +72,8 @@
                     <div class="alert alert-info">
                         <i class="fi fi-rr-info me-1"></i>
                         <strong>Download Template:</strong>
-                        <a href="{{ route('admin.event.participants.template') }}" class="btn btn-sm btn-outline-primary ms-2">
+                        <a href="{{ route('admin.event.participants.template') }}"
+                            class="btn btn-sm btn-outline-primary ms-2">
                             <i class="fi fi-rr-download me-1"></i> Download Template
                         </a>
                     </div>
@@ -103,7 +108,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     let table;
 
     // Setup CSRF token for Axios
@@ -125,11 +130,11 @@ $(document).ready(function() {
             { data: 'coupon_number', name: 'coupon_number' },
             { data: 'name', name: 'name' },
             { data: 'phone', name: 'phone' },
+            { data: 'asal', name: 'asal' },
             { data: 'is_winner', name: 'is_winner' },
-            { data: 'created_at', name: 'created_at' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        order: [[5, 'desc']],
+        order: [[1, 'desc']],
         pageLength: 10,
         pagingType: "simple",
         language: {
