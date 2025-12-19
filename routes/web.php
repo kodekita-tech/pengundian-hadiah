@@ -9,7 +9,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', function () {
+    return redirect()->route('admin.dashboard');
+})->name('home');
 
 // Guest Routes (public, no auth required)
 require __DIR__.'/guest/event.php';

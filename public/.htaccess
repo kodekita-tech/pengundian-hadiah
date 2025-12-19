@@ -46,6 +46,10 @@
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+    # Redirect /home to /admin/dashboard
+    RewriteCond %{REQUEST_URI} ^/home/?$ [NC]
+    RewriteRule ^(.*)$ /admin/dashboard [L,R=301]
+
     # Block files with double extensions (security: prevent upload bypass)
     RewriteCond %{REQUEST_FILENAME} \.(php|phtml|php3|php4|php5|php7|php8|phps|phar|pht|phpt|shtml|htaccess|htpasswd|ini|log|sh|py|pl|jsp|asp|aspx|cgi|exe|dll|bat|cmd|com|scr|vbs|js|jar|war|ear)\.(jpg|jpeg|png|gif|bmp|svg|webp|pdf|doc|docx|xls|xlsx|txt|zip|rar|7z|tar|gz)$ [NC]
     RewriteRule .* - [F,L]
