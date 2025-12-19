@@ -9,7 +9,7 @@
         <div class="animated-particles"></div>
     </div>
 
-    <div class="container">
+    <div class="container pt-5">
         <!-- Combined Event Header & Prize Selection -->
         <div class="combined-header-card">
             <div class="combined-header-content">
@@ -35,21 +35,53 @@
                 <div class="prize-selection-section">
                     <label class="prize-selection-label">
                         <i class="fi fi-rr-gift"></i>
-                        <span>Pilih Hadiah</span>
+                        <span>Pilih Hadiah untuk Diundi</span>
                     </label>
-                    <select class="prize-selection-input form-select" id="globalPrizeSelect">
-                        <option value="" selected disabled>-- Pilih Hadiah --</option>
-                        @foreach($prizes as $prize)
-                        <option value="{{ $prize->id }}" data-name="{{ $prize->name }}" data-stock="{{ $prize->stock }}"
-                            data-unlimited="{{ $prize->hasStockLimit() ? '0' : '1' }}" {{ !$prize->isAvailable() ?
-                            'disabled' : '' }}>
-                            {{ $prize->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="stock-display-wrapper">
-                        <small class="global-stock-display text-muted">&nbsp;</small>
+                    
+                    <!-- Prize Filter Section -->
+                    <div class="prize-filter-section">
+                        <button class="btn-prize-filter-toggle" id="btnPrizeFilterToggle">
+                            <i class="fi fi-rr-filter"></i>
+                            <span>Pilih Hadiah</span>
+                            <i class="fi fi-rr-angle-down toggle-icon"></i>
+                        </button>
+                        <div class="prize-filter-panel" id="prizeFilterPanel">
+                            <div class="prize-filter-list">
+                                @foreach($prizes as $prize)
+                                <label class="prize-filter-item">
+                                    <input type="radio" 
+                                           name="selectedPrize"
+                                           class="prize-filter-radio" 
+                                           value="{{ $prize->id }}" 
+                                           data-prize-id="{{ $prize->id }}"
+                                           data-prize-name="{{ $prize->name }}"
+                                           data-stock="{{ $prize->stock }}"
+                                           data-unlimited="{{ $prize->hasStockLimit() ? '0' : '1' }}"
+                                           {{ !$prize->isAvailable() ? 'disabled' : '' }}>
+                                    <div class="prize-filter-content">
+                                        <div class="prize-filter-icon">
+                                            <i class="fi fi-rr-gift"></i>
+                                        </div>
+                                        <div class="prize-filter-name">{{ $prize->name }}</div>
+                                        <div class="prize-filter-stock">
+                                            @if($prize->hasStockLimit())
+                                                <span class="stock-badge-small {{ $prize->stock > 0 ? 'stock-available' : 'stock-empty' }}">
+                                                    {{ $prize->stock }} tersisa
+                                                </span>
+                                            @else
+                                                <span class="stock-badge-small stock-unlimited">
+                                                    Unlimited
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
+
+                    <input type="hidden" id="globalPrizeSelect" value="">
                 </div>
 
                 <!-- Right: Action Buttons -->
@@ -58,10 +90,26 @@
                         data-bs-target="#winnersModal">
                         <i class="fi fi-rr-trophy me-2"></i>Lihat Pemenang
                     </button>
-                    <button class="copy-link-btn" id="btnCopyLink">
-                        <i class="fi fi-rr-copy"></i>
-                        <span>Copy Link</span>
+                    <button class="copy-link-btn add-machine-btn" id="btnAddMachine">
+                        <i class="fi fi-rr-add"></i>
+                        <span>Tambah Alat Undi</span>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selected Prize Card -->
+        <div class="selected-prize-card" id="selectedPrizeCard" style="display: none;">
+            <div class="selected-prize-content">
+                <div class="selected-prize-icon">
+                    <i class="fi fi-rr-gift"></i>
+                </div>
+                <div class="selected-prize-info">
+                    <div class="selected-prize-label">Sedang Mengundi Hadiah:</div>
+                    <div class="selected-prize-name" id="selectedPrizeName">-</div>
+                </div>
+                <div class="selected-prize-stock">
+                    <small class="global-stock-display text-muted">&nbsp;</small>
                 </div>
             </div>
         </div>
@@ -69,7 +117,23 @@
         <!-- Main Content: Drawing Machines Area -->
         <div class="drawing-area-wrapper">
             <!-- Machines Container -->
-            <div id="machinesContainer" class="machines-grid">
+            <div id="machinesContainer" class="machines-grid pt-3">
+                <!-- Empty State Card -->
+                <div id="emptyStateCard" class="empty-state-card animate__animated animate__fadeIn">
+                    <div class="empty-state-content">
+                        <div class="empty-state-icon mb-4">
+                            <i class="fi fi-rr-box-open text-white"></i>
+                        </div>
+                        <h4 class="empty-state-title mb-3 text-white">Belum Ada Alat Undi</h4>
+                        <p class="empty-state-description mb-4 text-white">
+                            Klik tombol "Tambah Alat Undi" di atas untuk memulai pengundian hadiah
+                        </p>
+                        <button class="btn-add-from-empty" id="btnAddFromEmpty">
+                            <i class="fi fi-rr-add me-2"></i>
+                            <span>Tambah Alat Undi Pertama</span>
+                        </button>
+                    </div>
+                </div>
                 <!-- Machines will be appended here by JS -->
             </div>
 
@@ -121,8 +185,16 @@
                                     <span>PEMENANG</span>
                                 </div>
                                 <div class="winner-content">
-                                    <div class="winner-coupon coupon-display mb-1">000000</div>
                                     <div class="winner-label small mb-1">Nomor Kupon</div>
+                                    <div class="winner-coupon coupon-display mb-1">000000</div>
+                                    <div class="winner-name mb-2 mt-2">
+                                        <i class="fi fi-rr-user me-1"></i>
+                                        <span class="participant-name-display">-</span>
+                                    </div>
+                                    <div class="winner-phone mb-2">
+                                        <i class="fi fi-rr-phone-call me-1"></i>
+                                        <span class="participant-phone-display">-</span>
+                                    </div>
                                     <div class="winner-prize py-1 px-2 fs-6">
                                         <i class="fi fi-rr-gift me-1"></i>
                                         <span class="prize-name-display">-</span>
@@ -137,17 +209,9 @@
                                 <i class="fi fi-rr-play"></i>
                                 <span>MULAI</span>
                             </button>
-                            <button class="action-btn btn-stop d-none btn-sm py-2">
-                                <i class="fi fi-rr-stop"></i>
-                                <span>STOP</span>
-                            </button>
                             <button class="action-btn btn-redraw d-none btn-sm py-2">
                                 <i class="fi fi-rr-refresh"></i>
-                                <span>ULANG UNDI</span>
-                            </button>
-                            <button class="action-btn btn-confirm d-none btn-sm py-2">
-                                <i class="fi fi-rr-check"></i>
-                                <span>KONFIRMASI</span>
+                                <span>ULANGI UNDI</span>
                             </button>
                         </div>
                     </div>
@@ -362,7 +426,7 @@
         font-weight: 700;
         color: #6c757d;
         letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
     }
 
     .prize-selection-label i {
@@ -370,26 +434,409 @@
         font-size: 1rem;
     }
 
-    .prize-selection-input {
+    /* Prize Filter Section */
+    .prize-filter-section {
         width: 100%;
+        margin-bottom: 0.75rem;
+        position: relative;
+    }
+
+    .btn-prize-filter-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
         padding: 0.75rem 1rem;
+        background: white;
         border: 2px solid #e9ecef;
         border-radius: 10px;
-        font-size: 0.95rem;
-        font-weight: 700;
-        text-align: center;
-        transition: all 0.3s;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #2c3e50;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
 
-    .prize-selection-input:focus {
-        outline: none;
+    .btn-prize-filter-toggle:hover {
         border-color: #00BFFF;
-        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 191, 255, 0.1);
     }
 
-    .prize-selection-input:disabled {
+    .btn-prize-filter-toggle i:first-child {
+        color: #00BFFF;
+    }
+
+    .btn-prize-filter-toggle .toggle-icon {
+        transition: transform 0.3s ease;
+        color: #6c757d;
+    }
+
+    .btn-prize-filter-toggle.active .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .prize-filter-panel {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 0.5rem;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .prize-filter-panel.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .prize-filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .filter-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #2c3e50;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter-action {
+        padding: 0.375rem 0.75rem;
         background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter-action:hover {
+        background: #e9ecef;
+        border-color: #00BFFF;
+        color: #00BFFF;
+    }
+
+    .prize-filter-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .prize-filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .prize-filter-item:hover {
+        background: #e9ecef;
+        border-color: #00BFFF;
+    }
+
+    .prize-filter-item:has(input:checked) {
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        border-color: #00BFFF;
+    }
+
+    .prize-filter-item:has(input:disabled) {
+        opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .prize-filter-radio {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #00BFFF;
+        flex-shrink: 0;
+    }
+
+    .prize-filter-radio:disabled {
+        cursor: not-allowed;
+    }
+
+    .prize-filter-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .prize-filter-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.2) 0%, rgba(0, 191, 255, 0.2) 100%);
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .prize-filter-icon i {
+        font-size: 1rem;
+        color: #00BFFF;
+    }
+
+    .prize-filter-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #2c3e50;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .prize-filter-stock {
+        flex-shrink: 0;
+    }
+
+    .stock-badge-small {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    /* Selected Prize Card */
+    .selected-prize-card {
+        margin-top: 1rem;
+        background: white;
+        border: 2px solid #00BFFF;
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.2);
+        animation: slideDown 0.3s ease;
+    }
+
+    .selected-prize-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .selected-prize-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+
+    .selected-prize-icon i {
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .selected-prize-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .selected-prize-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .selected-prize-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #00BFFF;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .selected-prize-stock {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .prize-card {
+        position: relative;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .prize-card:hover:not(.disabled):not(.selected) {
+        border-color: #00BFFF;
+        box-shadow: 0 4px 12px rgba(0, 191, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .prize-card.selected {
+        border-color: #00BFFF;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.2);
+    }
+
+    .prize-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8f9fa;
+    }
+
+    .prize-card-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .prize-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.2) 0%, rgba(0, 191, 255, 0.2) 100%);
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    .prize-icon i {
+        font-size: 1.25rem;
+        color: #00BFFF;
+    }
+
+    .prize-card.selected .prize-icon {
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+    }
+
+    .prize-card.selected .prize-icon i {
+        color: white;
+    }
+
+    .prize-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #2c3e50;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .prize-card.selected .prize-name {
+        color: #00BFFF;
+    }
+
+    .prize-stock {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stock-badge i {
+        font-size: 0.7rem;
+    }
+
+    .stock-available {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .stock-empty {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .stock-unlimited {
+        background: rgba(0, 191, 255, 0.1);
+        color: #00BFFF;
+    }
+
+    .prize-card-check {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        border-radius: 50%;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .prize-card.selected .prize-card-check {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .prize-card-check i {
+        color: white;
+        font-size: 0.75rem;
     }
 
     .stock-display-wrapper {
@@ -450,6 +897,150 @@
 
     .machine-col {
         min-width: 0;
+    }
+
+    /* Empty State Card */
+    .empty-state-card {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        padding: 2rem;
+    }
+
+    .empty-state-content {
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .empty-state-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        border-radius: 50%;
+        border: 3px solid rgba(0, 191, 255, 0.2);
+    }
+
+    .empty-state-icon i {
+        font-size: 4rem;
+        color: #00BFFF;
+        opacity: 0.7;
+    }
+
+    .empty-state-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-description {
+        font-size: 1rem;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .btn-add-from-empty {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 2rem;
+        background: transparent;
+        color: transparent;
+        background-image: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.2);
+        margin-top: 1rem;
+        position: relative;
+        isolation: isolate;
+    }
+
+    .btn-add-from-empty::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        z-index: -2;
+        pointer-events: none;
+    }
+
+    .btn-add-from-empty::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 2px;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        -webkit-mask: 
+            linear-gradient(#fff 0 0) content-box, 
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        z-index: -1;
+    }
+
+    .btn-add-from-empty:hover {
+        transform: translateY(-3px) scale(1.05);
+        background-image: linear-gradient(135deg, #90EE90 0%, #00CED1 100%);
+        box-shadow: 0 8px 25px rgba(0, 191, 255, 0.4);
+    }
+
+    .btn-add-from-empty:hover::before {
+        background: linear-gradient(135deg, #90EE90 0%, #00CED1 100%);
+    }
+
+    .btn-add-from-empty i {
+        font-size: 1.25rem;
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-from-empty:hover i {
+        background: linear-gradient(135deg, #90EE90 0%, #00CED1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .btn-add-from-empty span {
+        background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+
+    .btn-add-from-empty:hover span {
+        background: linear-gradient(135deg, #90EE90 0%, #00CED1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .btn-add-from-empty:active {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
     }
 
     /* Draw Card */
@@ -789,6 +1380,42 @@
         font-size: 1.25rem;
     }
 
+    .winner-name {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #212529;
+        padding: 0.5rem 1rem;
+        background: rgba(152, 251, 152, 0.1);
+        border-radius: 8px;
+    }
+
+    .winner-name i {
+        color: #00BFFF;
+        font-size: 1rem;
+    }
+
+    .winner-phone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #6c757d;
+        padding: 0.5rem 1rem;
+        background: rgba(0, 191, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    .winner-phone i {
+        color: #00BFFF;
+        font-size: 0.9rem;
+    }
+
     /* Action Buttons */
     .action-buttons {
         padding: 0.75rem 1rem;
@@ -1066,9 +1693,25 @@
             min-width: 100%;
         }
 
-        .prize-selection-input {
+        .selected-prize-card {
+            padding: 1rem;
+        }
+
+        .selected-prize-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .selected-prize-icon i {
+            font-size: 1.25rem;
+        }
+
+        .selected-prize-name {
+            font-size: 1.1rem;
+        }
+
+        .prize-name {
             font-size: 0.875rem;
-            padding: 0.625rem 0.875rem;
         }
 
         .action-buttons-section {
@@ -1135,12 +1778,43 @@
         // --- GLOBAL PRIZE SELECT ---
         const globalPrizeSelect = document.getElementById('globalPrizeSelect');
         const globalStockDisplay = document.querySelector('.global-stock-display');
+        const selectedPrizeCard = document.getElementById('selectedPrizeCard');
+        const selectedPrizeName = document.getElementById('selectedPrizeName');
+        const prizeFilterPanel = document.getElementById('prizeFilterPanel');
+        const btnPrizeFilterToggle = document.getElementById('btnPrizeFilterToggle');
+        const prizeFilterRadios = document.querySelectorAll('.prize-filter-radio');
+        const btnSelectAllPrizes = document.getElementById('btnSelectAllPrizes');
+        const btnDeselectAllPrizes = document.getElementById('btnDeselectAllPrizes');
 
-        function updateGlobalStockDisplay() {
-            const option = globalPrizeSelect.options[globalPrizeSelect.selectedIndex];
-            if (option && option.value) {
-                const isUnlimited = option.dataset.unlimited === '1';
-                const stock = option.dataset.stock;
+        // Toggle filter panel
+        if (btnPrizeFilterToggle) {
+            btnPrizeFilterToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                prizeFilterPanel.classList.toggle('show');
+            });
+        }
+
+        // Function to update selected prize display
+        function updateSelectedPrizeDisplay() {
+            const selectedPrizeId = globalPrizeSelect.value;
+            if (selectedPrizeId) {
+                const selectedRadio = document.querySelector(`.prize-filter-radio[data-prize-id="${selectedPrizeId}"]`);
+                if (selectedRadio) {
+                    selectedPrizeName.textContent = selectedRadio.dataset.prizeName;
+                    updateGlobalStockDisplay(selectedRadio);
+                    selectedPrizeCard.style.display = 'block';
+                }
+            } else {
+                selectedPrizeName.textContent = '-';
+                globalStockDisplay.innerHTML = '&nbsp;';
+                selectedPrizeCard.style.display = 'none';
+            }
+        }
+
+        function updateGlobalStockDisplay(prizeElement) {
+            if (prizeElement) {
+                const isUnlimited = prizeElement.dataset.unlimited === '1';
+                const stock = prizeElement.dataset.stock;
                 if (isUnlimited) {
                     globalStockDisplay.textContent = 'Stok: Unlimited';
                     globalStockDisplay.className = 'global-stock-display text-success fw-bold';
@@ -1153,7 +1827,82 @@
             }
         }
 
-        globalPrizeSelect.addEventListener('change', updateGlobalStockDisplay);
+        // Function to mask phone number (sensor bagian tengah)
+        function maskPhoneNumber(phone) {
+            if (!phone || phone.trim().length === 0) {
+                return '-';
+            }
+            
+            // Hapus karakter non-digit
+            const digits = phone.replace(/\D/g, '');
+            
+            if (digits.length <= 4) {
+                // Jika terlalu pendek, tampilkan semua dengan asterisk
+                return '*'.repeat(digits.length);
+            }
+            
+            if (digits.length <= 6) {
+                // Jika 5-6 digit, tampilkan 2 digit pertama dan 2 digit terakhir
+                const firstTwo = digits.substring(0, 2);
+                const lastTwo = digits.substring(digits.length - 2);
+                return firstTwo + '*'.repeat(digits.length - 4) + lastTwo;
+            }
+            
+            // Untuk nomor lebih dari 6 digit, ambil 3 digit pertama dan 3 digit terakhir
+            const firstThree = digits.substring(0, 3);
+            const lastThree = digits.substring(digits.length - 3);
+            const middleLength = digits.length - 6;
+            
+            // Buat string dengan bagian tengah disensor (minimal 3 asterisk)
+            const masked = firstThree + '*'.repeat(Math.max(3, middleLength)) + lastThree;
+            
+            return masked;
+        }
+
+        // Handle prize selection from radio buttons (only 1 can be selected)
+        prizeFilterRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked && !this.disabled) {
+                    // Update hidden input
+                    globalPrizeSelect.value = this.dataset.prizeId;
+                    updateSelectedPrizeDisplay();
+                    
+                    // Hide panel setelah memilih hadiah
+                    if (prizeFilterPanel) {
+                        prizeFilterPanel.classList.remove('show');
+                    }
+                    if (btnPrizeFilterToggle) {
+                        btnPrizeFilterToggle.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // Select all prizes - select first available prize
+        if (btnSelectAllPrizes) {
+            btnSelectAllPrizes.addEventListener('click', function() {
+                const firstAvailable = document.querySelector('.prize-filter-radio:not(:disabled)');
+                if (firstAvailable) {
+                    firstAvailable.checked = true;
+                    globalPrizeSelect.value = firstAvailable.dataset.prizeId;
+                    updateSelectedPrizeDisplay();
+                }
+            });
+        }
+
+        // Deselect all prizes
+        if (btnDeselectAllPrizes) {
+            btnDeselectAllPrizes.addEventListener('click', function() {
+                prizeFilterRadios.forEach(radio => {
+                    radio.checked = false;
+                });
+                globalPrizeSelect.value = '';
+                updateSelectedPrizeDisplay();
+            });
+        }
+
+        // Initial update
+        updateSelectedPrizeDisplay();
 
         // --- DRAW MACHINE CLASS ---
         class DrawMachine {
@@ -1186,15 +1935,11 @@
                 }
 
                 const btnStart = clone.querySelector('.btn-start');
-                const btnStop = clone.querySelector('.btn-stop');
                 const btnRedraw = clone.querySelector('.btn-redraw');
-                const btnConfirm = clone.querySelector('.btn-confirm');
                 const btnAddInCard = clone.querySelector('#btnAddMachineInCard');
                 
                 btnStart.addEventListener('click', () => this.start());
-                btnStop.addEventListener('click', () => this.stop());
                 btnRedraw.addEventListener('click', () => this.redraw());
-                btnConfirm.addEventListener('click', () => this.confirm());
                 
                 // Set unique ID untuk tombol add di card
                 if (btnAddInCard) {
@@ -1257,6 +2002,7 @@
                         this.element.remove();
                         machines = machines.filter(m => m.id !== this.id);
                         checkMachineCount();
+                        toggleEmptyState();
                         updateSaveButton();
                         
                         // Update visibility tombol + dan X di semua card setelah remove
@@ -1281,7 +2027,10 @@
                 
                 if (!prizeId) {
                     $.toast({ text: 'Pilih hadiah dulu!', icon: 'warning', position: 'top-center' });
-                    globalPrizeSelect.focus();
+                    const currentPrizeDisplay = document.getElementById('currentPrizeDisplay');
+                    if (currentPrizeDisplay) {
+                        currentPrizeDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                     return;
                 }
 
@@ -1290,13 +2039,15 @@
                     return;
                 }
 
-                if (this.isConfirmed) {
-                    $.toast({ text: 'Pemenang sudah dikonfirmasi!', icon: 'warning', position: 'top-center' });
-                    return;
+                // Lock UI - disable prize filter radios
+                prizeFilterRadios.forEach(radio => {
+                    radio.disabled = true;
+                });
+                if (btnPrizeFilterToggle) {
+                    btnPrizeFilterToggle.disabled = true;
+                    btnPrizeFilterToggle.style.opacity = '0.6';
+                    btnPrizeFilterToggle.style.pointerEvents = 'none';
                 }
-
-                // Lock UI
-                globalPrizeSelect.disabled = true;
                 if(this.canDelete) {
                     const btnRemove = this.element.querySelector('.btn-remove-machine');
                     if (btnRemove) btnRemove.disabled = true;
@@ -1310,11 +2061,16 @@
                 // Update add button visibility
                 this.updateAddButtonVisibility();
                 
-                // Buttons
-                this.element.querySelector('.btn-start').classList.add('d-none');
-                this.element.querySelector('.btn-stop').classList.remove('d-none');
-                this.element.querySelector('.btn-redraw').classList.add('d-none');
-                this.element.querySelector('.btn-confirm').classList.add('d-none');
+                // Buttons - Hide MULAI, Show ULANGI UNDI (disabled saat rolling)
+                const btnStart = this.element.querySelector('.btn-start');
+                const btnRedraw = this.element.querySelector('.btn-redraw');
+                
+                btnStart.classList.add('d-none');
+                btnStart.style.display = 'none';
+                
+                btnRedraw.classList.remove('d-none');
+                btnRedraw.style.display = 'flex';
+                btnRedraw.disabled = true;
 
                 // Animation dengan visual random dari semua nomor kupon
                 this.isRolling = true;
@@ -1330,15 +2086,19 @@
                         display.textContent = random.coupon_number;
                     }
                 }, 50);
+                
+                // Auto-stop setelah 3-5 detik (random untuk variasi)
+                const stopDelay = 3000 + Math.random() * 2000; // 3-5 detik
+                setTimeout(() => {
+                    if (this.isRolling) {
+                        this.stop();
+                    }
+                }, stopDelay);
             }
 
             stop() {
                 clearInterval(this.rollInterval);
                 this.isRolling = false;
-                
-                const btnStop = this.element.querySelector('.btn-stop');
-                btnStop.disabled = true;
-                btnStop.innerHTML = '<i class="fi fi-rr-spinner fi-spin"></i>';
 
                 // Dapatkan kandidat yang tersedia (belum terpilih di card lain)
                 let availableCandidates = candidates.filter(candidate => 
@@ -1371,8 +2131,7 @@
                 const winnerIndex = Math.floor(Math.random() * availableCandidates.length);
                 const winner = availableCandidates[winnerIndex];
                 const prizeId = globalPrizeSelect.value;
-                const prizeOption = globalPrizeSelect.options[globalPrizeSelect.selectedIndex];
-                const prizeName = prizeOption.dataset.name;
+                const prizeName = selectedPrizeName ? selectedPrizeName.textContent : '';
 
                 // Tambahkan ke daftar peserta terpilih
                 selectedParticipantIds.push(winner.id);
@@ -1384,7 +2143,8 @@
                     participant: {
                         id: winner.id,
                         coupon_number: winner.coupon_number,
-                        name: winner.name
+                        name: winner.name,
+                        phone: winner.phone || ''
                     },
                     prize_name: prizeName
                 };
@@ -1393,10 +2153,30 @@
             }
 
             showWinner() {
-                const btnStop = this.element.querySelector('.btn-stop');
-                btnStop.classList.add('d-none');
-                btnStop.disabled = false;
-                btnStop.innerHTML = '<i class="fi fi-rr-stop"></i> <span>STOP</span>';
+                // Auto-confirm pemenang saat stop (karena button KONFIRMASI sudah dihapus)
+                if (this.currentWinner) {
+                    // Jika pemenang dihapus dari daftar terpilih (seharusnya tidak terjadi, tapi untuk berjaga-jaga)
+                    if (!selectedParticipantIds.includes(this.currentWinner.participant_id)) {
+                        selectedParticipantIds.push(this.currentWinner.participant_id);
+                    }
+
+                    // Tambahkan ke array confirmedWinners
+                    const existingIndex = confirmedWinners.findIndex(w => w.machineId === this.id);
+                    if (existingIndex > -1) {
+                        confirmedWinners[existingIndex] = {
+                            machineId: this.id,
+                            ...this.currentWinner
+                        };
+                    } else {
+                        confirmedWinners.push({
+                            machineId: this.id,
+                            ...this.currentWinner
+                        });
+                    }
+
+                    this.isConfirmed = true;
+                    updateSaveButton();
+                }
 
                 // Switch State
                 this.element.querySelector('.state-rolling').classList.add('d-none');
@@ -1407,6 +2187,8 @@
 
                 // Update Winner Info
                 this.element.querySelector('.winner-coupon').textContent = this.currentWinner.participant.coupon_number;
+                this.element.querySelector('.participant-name-display').textContent = this.currentWinner.participant.name || '-';
+                this.element.querySelector('.participant-phone-display').textContent = maskPhoneNumber(this.currentWinner.participant.phone);
                 this.element.querySelector('.prize-name-display').textContent = this.currentWinner.prize_name;
 
                 // Confetti
@@ -1417,11 +2199,16 @@
                     colors: ['#98FB98', '#00BFFF', '#ffffff']
                 });
 
-                // Show buttons
-                setTimeout(() => {
-                    this.element.querySelector('.btn-redraw').classList.remove('d-none');
-                    this.element.querySelector('.btn-confirm').classList.remove('d-none');
-                }, 500);
+                // Enable ULANGI UNDI button and hide MULAI
+                const btnStart = this.element.querySelector('.btn-start');
+                const btnRedraw = this.element.querySelector('.btn-redraw');
+                
+                btnStart.classList.add('d-none');
+                btnStart.style.display = 'none';
+                
+                btnRedraw.classList.remove('d-none');
+                btnRedraw.style.display = 'flex';
+                btnRedraw.disabled = false;
             }
 
             redraw() {
@@ -1458,70 +2245,64 @@
                     }
                 }
                 
-                // Reset UI
-                this.element.querySelector('.state-winner').classList.add('d-none');
-                this.element.querySelector('.state-initial').classList.remove('d-none');
-                this.updateAddButtonVisibility();
-                
-                this.element.querySelector('.btn-redraw').classList.add('d-none');
-                this.element.querySelector('.btn-confirm').classList.add('d-none');
-                this.element.querySelector('.btn-start').classList.remove('d-none');
-                
-                globalPrizeSelect.disabled = false;
-                if(this.canDelete) {
-                    const btnRemove = this.element.querySelector('.btn-remove-machine');
-                    if (btnRemove) btnRemove.disabled = false;
-                }
-            }
-
-            confirm() {
-                if (!this.currentWinner) {
-                    $.toast({ text: 'Tidak ada pemenang untuk dikonfirmasi!', icon: 'error', position: 'top-center' });
-                    return;
-                }
-                
-                // Jika pemenang dihapus dari daftar terpilih (seharusnya tidak terjadi, tapi untuk berjaga-jaga)
-                if (!selectedParticipantIds.includes(this.currentWinner.participant_id)) {
-                    selectedParticipantIds.push(this.currentWinner.participant_id);
-                }
-
-                // Tambahkan ke array confirmedWinners
+                // Hapus dari confirmedWinners jika ada
                 const existingIndex = confirmedWinners.findIndex(w => w.machineId === this.id);
                 if (existingIndex > -1) {
-                    confirmedWinners[existingIndex] = {
-                        machineId: this.id,
-                        ...this.currentWinner
-                    };
-                } else {
-                    confirmedWinners.push({
-                        machineId: this.id,
-                        ...this.currentWinner
-                    });
+                    confirmedWinners.splice(existingIndex, 1);
+                    updateSaveButton();
                 }
-
-                this.isConfirmed = true;
                 
-                // Update UI
-                this.element.querySelector('.btn-redraw').classList.add('d-none');
-                this.element.querySelector('.btn-confirm').classList.add('d-none');
+                // Reset status konfirmasi
+                this.isConfirmed = false;
+                
+                // Langsung start lagi (mengacak lagi)
+                this.start();
+            }
+
+            resetUI() {
+                // Stop rolling jika masih berjalan
+                if (this.isRolling && this.rollInterval) {
+                    clearInterval(this.rollInterval);
+                    this.rollInterval = null;
+                    this.isRolling = false;
+                }
+                
+                // Reset UI ke initial state
+                if (this.currentWinner) {
+                    selectedParticipantIds = selectedParticipantIds.filter(
+                        id => id !== this.currentWinner.participant_id
+                    );
+                    this.currentWinner = null;
+                }
+                
+                this.isConfirmed = false;
+                
+                // Reset states
+                this.element.querySelector('.state-rolling').classList.add('d-none');
+                this.element.querySelector('.state-winner').classList.add('d-none');
+                this.element.querySelector('.state-initial').classList.remove('d-none');
+                
+                // Reset buttons - Show MULAI, Hide ULANGI UNDI
+                const btnStart = this.element.querySelector('.btn-start');
+                const btnRedraw = this.element.querySelector('.btn-redraw');
+                
+                btnStart.classList.remove('d-none');
+                btnStart.style.display = 'flex';
+                
+                btnRedraw.classList.add('d-none');
+                btnRedraw.style.display = 'none';
                 
                 // Update add button visibility
                 this.updateAddButtonVisibility();
                 
-                // Hide remove button saat dikonfirmasi
-                const btnRemove = this.element.querySelector('.btn-remove-machine');
-                if (btnRemove) {
-                    btnRemove.classList.add('d-none');
-                    btnRemove.disabled = true;
+                // Show remove button jika bisa dihapus
+                if(this.canDelete) {
+                    const btnRemove = this.element.querySelector('.btn-remove-machine');
+                    if (btnRemove) {
+                        btnRemove.classList.remove('d-none');
+                        btnRemove.disabled = false;
+                    }
                 }
-
-                $.toast({ 
-                    text: 'Pemenang dikonfirmasi!', 
-                    icon: 'success', 
-                    position: 'top-center' 
-                });
-
-                updateSaveButton();
             }
         }
 
@@ -1541,6 +2322,7 @@
             const machine = new DrawMachine(id, canDelete);
             machines.push(machine);
             checkMachineCount();
+            toggleEmptyState();
             
             // Update visibility tombol + dan X di semua card setelah machine ditambahkan
             setTimeout(() => {
@@ -1575,8 +2357,25 @@
             addMachine();
         });
         
-        // Initial Machine
-        addMachine();
+        // Toggle empty state
+        function toggleEmptyState() {
+            const emptyCard = document.getElementById('emptyStateCard');
+            if (emptyCard) {
+                if (machines.length === 0) {
+                    emptyCard.classList.remove('d-none');
+                } else {
+                    emptyCard.classList.add('d-none');
+                }
+            }
+        }
+
+        // Event listener untuk tombol add dari empty state
+        $(document).on('click', '#btnAddFromEmpty', function() {
+            addMachine();
+        });
+
+        // Initial empty state
+        toggleEmptyState();
         
         // Update visibility setelah semua machine ter-render (dengan beberapa delay untuk memastikan DOM ready)
         setTimeout(() => {
@@ -1674,13 +2473,38 @@
                     position: 'top-center' 
                 });
 
-                // Reset
+                // Reset machines tanpa mengacak lagi (gunakan resetUI, bukan redraw)
                 confirmedWinners = [];
                 machines.forEach(m => {
+                    // Hapus dari selectedParticipantIds jika ada
+                    if (m.currentWinner) {
+                        selectedParticipantIds = selectedParticipantIds.filter(
+                            id => id !== m.currentWinner.participant_id
+                        );
+                    }
                     m.currentWinner = null;
                     m.isConfirmed = false;
-                    m.redraw();
+                    m.isRolling = false;
+                    // Clear interval jika masih ada
+                    if (m.rollInterval) {
+                        clearInterval(m.rollInterval);
+                        m.rollInterval = null;
+                    }
+                    // Reset UI tanpa start lagi
+                    m.resetUI();
                 });
+                
+                // Unlock UI - enable prize filter radios
+                prizeFilterRadios.forEach(radio => {
+                    if (!radio.dataset.prizeId || document.querySelector(`.prize-filter-radio[data-prize-id="${radio.dataset.prizeId}"]:not([disabled])`)) {
+                        radio.disabled = false;
+                    }
+                });
+                if (btnPrizeFilterToggle) {
+                    btnPrizeFilterToggle.disabled = false;
+                    btnPrizeFilterToggle.style.opacity = '1';
+                    btnPrizeFilterToggle.style.pointerEvents = 'auto';
+                }
                 
                 // Reload candidates dan coupon numbers
                 loadCandidates();
@@ -1702,12 +2526,9 @@
             });
         });
 
-        // Copy Link Feature
-        $('#btnCopyLink').on('click', function() {
-            const link = window.location.href;
-            navigator.clipboard.writeText(link).then(() => {
-                $.toast({ text: 'Link berhasil disalin!', position: 'bottom-center', icon: 'success', loader: false });
-            });
+        // Add Machine Feature
+        $('#btnAddMachine').on('click', function() {
+            addMachine();
         });
     });
 </script>
