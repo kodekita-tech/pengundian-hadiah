@@ -23,6 +23,7 @@ Route::get('/d/{shortlink}/candidates', [DrawController::class, 'getCandidates']
 Route::get('/d/{shortlink}/coupon-numbers', [DrawController::class, 'getAllCouponNumbers'])->name('draw.coupon-numbers');
 Route::post('/d/{shortlink}/winner', [DrawController::class, 'storeWinner'])->name('draw.winner');
 Route::post('/d/{shortlink}/winners', [DrawController::class, 'storeWinners'])->name('draw.winners');
+Route::get('/d/{shortlink}/winners/export', [DrawController::class, 'exportWinners'])->name('draw.export-winners');
 
 // QR Registration Routes
 Route::get('/qr/{token}', [QrController::class, 'show'])->name('qr.show');

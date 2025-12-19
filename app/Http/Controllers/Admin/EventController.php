@@ -117,9 +117,17 @@ class EventController extends Controller
         $event->autoUpdateStatus();
         $event->refresh();
         
-        $event->load(['opd']);
+        $event->load(['opd', 'participants', 'prizes', 'winners']);
+        
+        // Get statistics
+        $stats = [
+            'participants_count' => $event->participants()->count(),
+            'prizes_count' => $event->prizes()->count(),
+            'winners_count' => $event->winners()->count(),
+            'available_participants' => $event->participants()->where('is_winner', false)->count(),
+        ];
 
-        return view('admin.event.show', compact('event'));
+        return view('admin.event.show', compact('event', 'stats'));
     }
 
     /**

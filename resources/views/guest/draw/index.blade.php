@@ -86,9 +86,11 @@
 
                 <!-- Right: Action Buttons -->
                 <div class="action-buttons-section">
-                    <button id="btnShowWinners" class="btn btn-outline-primary fw-bold shadow-sm" data-bs-toggle="modal"
-                        data-bs-target="#winnersModal">
+                    <button id="btnShowWinners" class="btn btn-outline-primary fw-bold shadow-sm">
                         <i class="fi fi-rr-trophy me-2"></i>Lihat Pemenang
+                    </button>
+                    <button id="btnShowMachines" class="btn btn-outline-secondary fw-bold shadow-sm d-none">
+                        <i class="fi fi-rr-arrow-left me-2"></i>Kembali ke Pengundian
                     </button>
                     <button class="copy-link-btn add-machine-btn" id="btnAddMachine">
                         <i class="fi fi-rr-add"></i>
@@ -116,6 +118,119 @@
 
         <!-- Main Content: Drawing Machines Area -->
         <div class="drawing-area-wrapper">
+            <!-- Winners List Container (Hidden by default) -->
+            <div id="winnersListContainer" class="winners-list-container d-none">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pb-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                            <h5 class="card-title fw-bold mb-0">
+                                <i class="fi fi-rr-trophy me-2 text-warning"></i>Daftar Pemenang
+                            </h5>
+                            @if($winners->count() > 0)
+                            <a href="{{ route('draw.export-winners', $event->shortlink) }}" 
+                               class="btn btn-success btn-sm" 
+                               id="btnExportWinners">
+                                <i class="fi fi-rr-download me-1"></i>Export Excel
+                            </a>
+                            @endif
+                        </div>
+                        <!-- Filter and Search -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fi fi-rr-search text-muted"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="searchWinner" 
+                                           autocomplete="off"
+                                           placeholder="Cari nama, nomor kupon, nomor HP, asal, hadiah, atau tanggal...">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <select class="form-select" id="filterPrize">
+                                    <option value="">Semua Hadiah</option>
+                                    @foreach($prizes as $prize)
+                                        <option value="{{ $prize->id }}">{{ $prize->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="winners-list" id="winnerList">
+                            <div id="winnerListGroup" class="row g-2">
+                                @php
+                                    // Sort winners by prize_id first, then by prize_name
+                                    $sortedWinners = $winners->sortBy(function($winner) {
+                                        // Pad prize_id with zeros for proper sorting, then append prize_name
+                                        $prizeId = str_pad($winner->prize_id ?? 0, 10, '0', STR_PAD_LEFT);
+                                        return $prizeId . '_' . ($winner->prize_name ?? '');
+                                    })->values();
+                                @endphp
+                                @forelse($sortedWinners as $winner)
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                    <div class="card winner-card h-100 border-0 shadow-sm winner-item" 
+                                         data-prize-id="{{ $winner->prize_id }}"
+                                         data-prize-name="{{ strtolower($winner->prize_name) }}"
+                                         data-participant-name="{{ strtolower($winner->participant->name ?? '') }}"
+                                         data-coupon-number="{{ $winner->participant->coupon_number ?? '' }}"
+                                         data-phone="{{ strtolower($winner->participant->phone ?? '') }}"
+                                         data-asal="{{ strtolower($winner->participant->asal ?? '') }}"
+                                         data-drawn-date="{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y') : '' }}">
+                                        <div class="card-body text-center p-2">
+                                            <!-- Participant Name -->
+                                            <h6 class="winner-card-name mb-1 fw-bold">{{ $winner->participant->name ?? '-' }}</h6>
+                                            
+                                            <!-- Coupon Number -->
+                                            <div class="winner-card-coupon mb-1">
+                                                <div class="coupon-badge">
+                                                    <i class="fi fi-rr-ticket me-1"></i>
+                                                    <span class="coupon-number">{{ $winner->participant->coupon_number ?? '-' }}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Prize Info -->
+                                            <div class="winner-card-prize mb-1">
+                                                <i class="fi fi-rr-gift me-1"></i>
+                                                <span class="prize-text">{{ $winner->prize_name ?? '-' }}</span>
+                                            </div>
+                                            
+                                            <!-- Additional Info -->
+                                            <div class="winner-card-info">
+                                                <div class="info-item mb-0">
+                                                    <i class="fi fi-rr-phone-call"></i>
+                                                    <span>{{ $winner->participant->phone ?? '-' }}</span>
+                                                </div>
+                                                <div class="info-item mb-0">
+                                                    <i class="fi fi-rr-marker"></i>
+                                                    <span>{{ $winner->participant->asal ?? '-' }}</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <i class="fi fi-rr-calendar"></i>
+                                                    <span>{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y H:i') : '-' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="winners-empty small text-center py-5 col-12">
+                                    <i class="fi fi-rr-confetti mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    <p class="mb-0 text-muted">Belum ada pemenang</p>
+                                </div>
+                                @endforelse
+                            </div>
+                            <div id="winnersNoResults" class="text-center py-5 d-none">
+                                <i class="fi fi-rr-search-alt mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                <p class="mb-0 text-muted">Tidak ada pemenang yang ditemukan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Machines Container -->
             <div id="machinesContainer" class="machines-grid pt-3">
                 <!-- Empty State Card -->
@@ -195,6 +310,10 @@
                                         <i class="fi fi-rr-phone-call me-1"></i>
                                         <span class="participant-phone-display">-</span>
                                     </div>
+                                    <div class="winner-asal mb-2">
+                                        <i class="fi fi-rr-marker me-1"></i>
+                                        <span class="participant-asal-display">-</span>
+                                    </div>
                                     <div class="winner-prize py-1 px-2 fs-6">
                                         <i class="fi fi-rr-gift me-1"></i>
                                         <span class="prize-name-display">-</span>
@@ -221,7 +340,7 @@
     </div>
 
     <!-- Save Button (Fixed at Bottom) -->
-    <div class="save-section mt-4">
+    <div class="save-section mt-4" id="saveSection">
         <div class="save-card">
             <div class="save-content">
                 <div class="save-info">
@@ -237,53 +356,6 @@
     </div>
 </div>
 
-<!-- Winner List Modal -->
-<div class="modal fade" id="winnersModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">
-                    <i class="fi fi-rr-trophy me-2"></i>Daftar Pemenang
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body pt-0" id="modalWinnersBody">
-                <div class="winners-list" id="winnerList" style="max-height: 500px; overflow-y: auto;">
-                    <div class="list-group list-group-flush">
-                        @forelse($winners as $winner)
-                        <div class="list-group-item winner-item p-3">
-                            <div class="winner-item-icon" style="width: 36px; height: 36px; font-size: 1rem;">
-                                <i class="fi fi-rr-trophy"></i>
-                            </div>
-                            <div class="winner-item-content">
-                                <div class="winner-item-header mb-1">
-                                    <div class="winner-item-name small">{{ $winner->participant->name ?
-                                        substr($winner->participant->name, 0, 2) . str_repeat('*', max(0,
-                                        strlen($winner->participant->name) - 2)) : '***' }}</div>
-                                    <div class="winner-item-coupon small">{{ $winner->participant->coupon_number }}
-                                    </div>
-                                </div>
-                                <div class="winner-item-footer">
-                                    <div class="winner-item-prize small">
-                                        <i class="fi fi-rr-gift text-primary"></i>
-                                        <span class="text-truncate" style="max-width: 120px;">{{ $winner->prize_name
-                                            }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="winners-empty small text-center py-5">
-                            <i class="fi fi-rr-confetti mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
-                            <p class="mb-0 text-muted">Belum ada pemenang</p>
-                        </div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('styles')
@@ -883,6 +955,70 @@
         flex-direction: column;
         overflow: hidden;
         min-height: 0;
+    }
+
+    /* Winners List Container */
+    .winners-list-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+        animation: fadeIn 0.3s ease;
+        margin-bottom: 4rem;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .winners-list-container .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 250px);
+    }
+
+    .winners-list-container .card-body {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 70vh;
+        min-height: 500px;
+        padding: 1.5rem;
+    }
+
+    .winners-list-container .winners-list {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 100%;
+        padding-bottom: 1rem;
+    }
+
+    .winners-list-container .winners-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .winners-list-container .winners-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .winners-list-container .winners-list::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .winners-list-container .winners-list::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 
     .machines-grid {
@@ -1647,6 +1783,261 @@
         color: #00BFFF;
     }
 
+    /* Winner Card - Modern Creative Design */
+    .winner-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none !important;
+        border-radius: 8px;
+        overflow: hidden;
+        background: white;
+        position: relative;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .winner-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        text-align: center;
+        width: 100%;
+        margin: 0;
+        padding: 0.5rem;
+        min-height: auto;
+        max-height: 200px;
+    }
+
+    .winner-card .card-body > * {
+        width: 100%;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .winner-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.03) 0%, rgba(0, 191, 255, 0.03) 100%);
+        opacity: 0;
+        transition: opacity 0.4s;
+        pointer-events: none;
+    }
+
+    .winner-card:hover::after {
+        opacity: 1;
+    }
+
+    .winner-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #98FB98, #00BFFF, #98FB98);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    .winner-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 191, 255, 0.2) !important;
+    }
+
+    /* Trophy Icon Small */
+    .winner-card-trophy-small {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
+        transition: all 0.3s;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .winner-card-trophy-small i {
+        font-size: 0.9rem;
+        color: white;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .winner-card:hover .winner-card-trophy-small {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Card Body */
+    .winner-card-name {
+        color: #212529;
+        font-size: 0.85rem;
+        line-height: 1.2;
+        margin: 0 auto;
+        text-align: center;
+        background: linear-gradient(135deg, #212529 0%, #00BFFF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .winner-card-coupon {
+        margin: 0.5rem auto;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .coupon-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.15) 0%, rgba(0, 191, 255, 0.15) 100%);
+        border: 1px solid #00BFFF;
+        border-radius: 6px;
+        padding: 0.3rem 0.6rem;
+        gap: 0.25rem;
+        transition: all 0.3s;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .winner-card:hover .coupon-badge {
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.25) 0%, rgba(0, 191, 255, 0.25) 100%);
+        transform: scale(1.05);
+    }
+
+    .coupon-badge i {
+        color: #00BFFF;
+        font-size: 0.75rem;
+    }
+
+    .coupon-number {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #00BFFF;
+        letter-spacing: 0.5px;
+    }
+
+    .winner-card-prize {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        background: linear-gradient(135deg, rgba(152, 251, 152, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #00BFFF;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .winner-card-prize i {
+        font-size: 0.7rem;
+    }
+
+    .prize-text {
+        color: #212529;
+    }
+
+    .winner-card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        font-size: 0.7rem;
+        color: #6c757d;
+        padding: 0.1rem 0;
+    }
+
+    .info-item i {
+        color: #00BFFF;
+        font-size: 0.7rem;
+        width: 14px;
+        text-align: center;
+    }
+
+    /* Winner Card Animation */
+    .winner-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stagger animation for multiple cards - only when visible */
+    #winnerListGroup .col-12[style*="display: none"] .winner-card {
+        animation: none;
+    }
+
+    #winnerListGroup .col-12:not([style*="display: none"]):nth-child(1) .winner-card {
+        animation-delay: 0.1s;
+    }
+
+    #winnerListGroup .col-12:not([style*="display: none"]):nth-child(2) .winner-card {
+        animation-delay: 0.2s;
+    }
+
+    #winnerListGroup .col-12:not([style*="display: none"]):nth-child(3) .winner-card {
+        animation-delay: 0.3s;
+    }
+
+    #winnerListGroup .col-12:not([style*="display: none"]):nth-child(4) .winner-card {
+        animation-delay: 0.4s;
+    }
+
+    .winner-item-footer {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .winner-item-date {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
     /* Responsive */
     @media (max-width: 1200px) {
         .combined-header-content {
@@ -1758,6 +2149,64 @@
         .btn-save-winners {
             width: 100%;
             justify-content: center;
+        }
+
+        .winners-list-container {
+            margin-bottom: 3rem;
+        }
+
+        .winners-list-container .card {
+            max-height: calc(100vh - 200px);
+        }
+
+        .winners-list-container .card-body {
+            max-height: 60vh;
+            min-height: 400px;
+            padding: 1rem;
+        }
+
+        .winners-list-container .card-header {
+            padding: 1rem;
+        }
+
+        .winners-list-container .winner-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .winners-list-container .winner-item-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .winner-card-trophy-small {
+            width: 28px;
+            height: 28px;
+        }
+
+        .winner-card-trophy-small i {
+            font-size: 0.85rem;
+        }
+
+        .winner-card-name {
+            font-size: 0.8rem;
+        }
+
+        .coupon-badge {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .coupon-number {
+            font-size: 0.7rem;
+        }
+
+        .winner-card-prize {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.45rem;
+        }
+
+        .info-item {
+            font-size: 0.65rem;
         }
     }
 </style>
@@ -1904,6 +2353,168 @@
         // Initial update
         updateSelectedPrizeDisplay();
 
+        // --- TOGGLE WINNERS LIST ---
+        const btnShowWinners = document.getElementById('btnShowWinners');
+        const btnShowMachines = document.getElementById('btnShowMachines');
+        const btnAddMachine = document.getElementById('btnAddMachine');
+        const machinesContainer = document.getElementById('machinesContainer');
+        const winnersListContainer = document.getElementById('winnersListContainer');
+        const saveSection = document.getElementById('saveSection');
+
+        if (btnShowWinners) {
+            btnShowWinners.addEventListener('click', function() {
+                // Hide machines container
+                if (machinesContainer) {
+                    machinesContainer.classList.add('d-none');
+                }
+                // Show winners list
+                if (winnersListContainer) {
+                    winnersListContainer.classList.remove('d-none');
+                }
+                // Hide save section
+                if (saveSection) {
+                    saveSection.classList.add('d-none');
+                }
+                // Hide selected prize card
+                if (selectedPrizeCard) {
+                    selectedPrizeCard.style.display = 'none';
+                }
+                // Toggle buttons
+                if (btnShowWinners) {
+                    btnShowWinners.classList.add('d-none');
+                }
+                if (btnShowMachines) {
+                    btnShowMachines.classList.remove('d-none');
+                }
+                // Hide add machine button
+                if (btnAddMachine) {
+                    btnAddMachine.classList.add('d-none');
+                }
+                // Reset filter and search
+                if (searchWinner) {
+                    searchWinner.value = '';
+                }
+                if (filterPrize) {
+                    filterPrize.value = '';
+                }
+                // Reset filter display
+                filterWinners();
+            });
+        }
+
+        if (btnShowMachines) {
+            btnShowMachines.addEventListener('click', function() {
+                // Show machines container
+                if (machinesContainer) {
+                    machinesContainer.classList.remove('d-none');
+                }
+                // Hide winners list
+                if (winnersListContainer) {
+                    winnersListContainer.classList.add('d-none');
+                }
+                // Show save section
+                if (saveSection) {
+                    saveSection.classList.remove('d-none');
+                }
+                // Show selected prize card if prize is selected
+                if (selectedPrizeCard && globalPrizeSelect && globalPrizeSelect.value) {
+                    updateSelectedPrizeDisplay();
+                }
+                // Toggle buttons
+                if (btnShowWinners) {
+                    btnShowWinners.classList.remove('d-none');
+                }
+                if (btnShowMachines) {
+                    btnShowMachines.classList.add('d-none');
+                }
+                // Show add machine button
+                if (btnAddMachine) {
+                    btnAddMachine.classList.remove('d-none');
+                }
+            });
+        }
+
+        // --- FILTER AND SEARCH WINNERS ---
+        const searchWinner = document.getElementById('searchWinner');
+        const filterPrize = document.getElementById('filterPrize');
+        const winnerListGroup = document.getElementById('winnerListGroup');
+        const winnersNoResults = document.getElementById('winnersNoResults');
+        const winnersEmpty = document.querySelector('.winners-empty');
+
+        function filterWinners() {
+            const searchTerm = searchWinner ? searchWinner.value.toLowerCase().trim() : '';
+            const selectedPrizeId = filterPrize ? filterPrize.value : '';
+            
+            if (!winnerListGroup) return;
+            
+            const winnerItems = winnerListGroup.querySelectorAll('.winner-item');
+            let totalVisibleCount = 0;
+            
+            winnerItems.forEach(item => {
+                const prizeId = item.getAttribute('data-prize-id');
+                const prizeName = item.getAttribute('data-prize-name') || '';
+                const participantName = item.getAttribute('data-participant-name') || '';
+                const couponNumber = item.getAttribute('data-coupon-number') || '';
+                const phone = item.getAttribute('data-phone') || '';
+                const asal = item.getAttribute('data-asal') || '';
+                const drawnDate = item.getAttribute('data-drawn-date') || '';
+                
+                // Get parent col div
+                const parentCol = item.closest('.col-12, .col-sm-6, .col-md-4, .col-lg-3');
+                
+                // Filter by prize
+                const matchesPrize = !selectedPrizeId || prizeId === selectedPrizeId;
+                
+                // Filter by search term
+                const matchesSearch = !searchTerm || 
+                    prizeName.includes(searchTerm) ||
+                    participantName.includes(searchTerm) ||
+                    couponNumber.includes(searchTerm) ||
+                    phone.includes(searchTerm) ||
+                    asal.includes(searchTerm) ||
+                    drawnDate.includes(searchTerm);
+                
+                if (matchesPrize && matchesSearch) {
+                    item.style.display = '';
+                    if (parentCol) {
+                        parentCol.style.display = '';
+                    }
+                    totalVisibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    if (parentCol) {
+                        parentCol.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Show/hide empty states
+            if (totalVisibleCount === 0) {
+                if (winnersNoResults) {
+                    winnersNoResults.classList.remove('d-none');
+                }
+                if (winnersEmpty) {
+                    winnersEmpty.style.display = 'none';
+                }
+            } else {
+                if (winnersNoResults) {
+                    winnersNoResults.classList.add('d-none');
+                }
+                if (winnersEmpty) {
+                    winnersEmpty.style.display = '';
+                }
+            }
+        }
+
+        // Event listeners for filter and search
+        if (searchWinner) {
+            searchWinner.addEventListener('input', filterWinners);
+        }
+        
+        if (filterPrize) {
+            filterPrize.addEventListener('change', filterWinners);
+        }
+
         // --- DRAW MACHINE CLASS ---
         class DrawMachine {
             constructor(id, canDelete = true) {
@@ -1981,18 +2592,10 @@
                 const isRolling = !stateRolling.classList.contains('d-none');
                 const isWinner = !stateWinner.classList.contains('d-none');
                 
-                // Hanya tampilkan tombol + di card pertama (index 0) yang belum dikonfirmasi
-                const isFirstMachine = machines.length > 0 && machines[0] && machines[0].id === this.id;
-                const canAddMore = machines.length < MAX_MACHINES;
-                
-                // Debug: console.log untuk melihat kondisi
-                // console.log('Machine ID:', this.id, 'isFirst:', isFirstMachine, 'isInitial:', isInitial, 'canAddMore:', canAddMore);
-                
-                if (isInitial && !isRolling && !isWinner && !this.isConfirmed && isFirstMachine && canAddMore) {
-                    btnAddInCard.classList.add('show');
-                } else {
-                    btnAddInCard.classList.remove('show');
-                }
+                // Sembunyikan button add setelah machine pertama ditambahkan
+                // Button add hanya muncul saat belum ada machine sama sekali (di empty state)
+                // Setelah machine pertama ditambahkan, gunakan button remove saja
+                btnAddInCard.classList.remove('show');
             }
 
             remove() {
@@ -2144,7 +2747,8 @@
                         id: winner.id,
                         coupon_number: winner.coupon_number,
                         name: winner.name,
-                        phone: winner.phone || ''
+                        phone: winner.phone || '',
+                        asal: winner.asal || ''
                     },
                     prize_name: prizeName
                 };
@@ -2189,6 +2793,7 @@
                 this.element.querySelector('.winner-coupon').textContent = this.currentWinner.participant.coupon_number;
                 this.element.querySelector('.participant-name-display').textContent = this.currentWinner.participant.name || '-';
                 this.element.querySelector('.participant-phone-display').textContent = maskPhoneNumber(this.currentWinner.participant.phone);
+                this.element.querySelector('.participant-asal-display').textContent = this.currentWinner.participant.asal || '-';
                 this.element.querySelector('.prize-name-display').textContent = this.currentWinner.prize_name;
 
                 // Confetti
@@ -2317,7 +2922,7 @@
             }
             
             const id = Date.now();
-            const canDelete = machines.length > 0; // Card pertama tidak bisa dihapus, card selanjutnya bisa
+            const canDelete = true; // Semua machine bisa dihapus, termasuk yang pertama
             
             const machine = new DrawMachine(id, canDelete);
             machines.push(machine);
@@ -2328,11 +2933,16 @@
             setTimeout(() => {
                 machines.forEach(m => {
                     m.updateAddButtonVisibility();
-                    // Update visibility tombol X
+                    // Update visibility tombol X - semua machine yang bisa dihapus dan belum dikonfirmasi
                     const btnRemove = m.element.querySelector('.btn-remove-machine');
+                    const btnAddInCard = m.element.querySelector('.btn-add-machine-in-card');
                     if (btnRemove) {
                         if (m.canDelete && !m.isConfirmed) {
                             btnRemove.classList.remove('d-none');
+                            // Sembunyikan button add jika ada
+                            if (btnAddInCard) {
+                                btnAddInCard.classList.remove('show');
+                            }
                         } else {
                             btnRemove.classList.add('d-none');
                         }
@@ -2458,13 +3068,29 @@
             btnSave.html('<i class="fi fi-rr-spinner fi-spin"></i> <span>Menyimpan...</span>');
 
             // Prepare data untuk dikirim
-            const winnersData = confirmedWinners.map(w => ({
-                participant_id: w.participant_id,
-                prize_id: w.prize_id
-            }));
+            const winnersData = confirmedWinners
+                .filter(w => w.participant_id && w.prize_id) // Filter out invalid data
+                .map(w => ({
+                    participant_id: parseInt(w.participant_id),
+                    prize_id: parseInt(w.prize_id)
+                }));
+
+            // Validate data before sending
+            if (winnersData.length === 0) {
+                $.toast({ 
+                    text: 'Tidak ada data pemenang yang valid untuk disimpan!', 
+                    icon: 'warning', 
+                    position: 'top-center' 
+                });
+                btnSave.prop('disabled', false);
+                btnSave.html('<i class="fi fi-rr-disk"></i> <span>Simpan Pemenang</span>');
+                return;
+            }
 
             axios.post(`{{ route('draw.winners', $event->shortlink) }}`, {
                 winners: winnersData
+            }, {
+                timeout: 30000 // 30 seconds timeout
             })
             .then(res => {
                 $.toast({ 
@@ -2506,20 +3132,35 @@
                     btnPrizeFilterToggle.style.pointerEvents = 'auto';
                 }
                 
-                // Reload candidates dan coupon numbers
-                loadCandidates();
-                loadAllCouponNumbers();
-                
-                // Reload page setelah 1 detik untuk update winner list
+                // Reload page setelah 1.5 detik untuk update winner list
+                // Tidak perlu loadCandidates dan loadAllCouponNumbers karena akan reload page
                 setTimeout(() => {
                     window.location.reload();
-                }, 1000);
+                }, 1500);
             })
             .catch(err => {
+                // Ignore ECONNABORTED errors (request aborted) - usually happens during page reload
+                if (err.code === 'ECONNABORTED' || err.message === 'Request aborted') {
+                    console.log('Request was aborted (likely due to page reload)');
+                    return;
+                }
+                
+                console.error('Error saving winners:', err);
+                let errorMessage = 'Gagal menyimpan pemenang.';
+                
+                if (err.response?.data?.message) {
+                    errorMessage = err.response.data.message;
+                } else if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+                    errorMessage = err.response.data.errors.join('<br>');
+                } else if (err.message && err.code !== 'ECONNABORTED') {
+                    errorMessage = err.message;
+                }
+                
                 $.toast({ 
-                    text: err.response?.data?.message || 'Gagal menyimpan pemenang.', 
+                    text: errorMessage, 
                     icon: 'error',
-                    position: 'top-center'
+                    position: 'top-center',
+                    heading: 'Error'
                 });
                 btnSave.prop('disabled', false);
                 btnSave.html('<i class="fi fi-rr-disk"></i> <span>Simpan Pemenang</span>');

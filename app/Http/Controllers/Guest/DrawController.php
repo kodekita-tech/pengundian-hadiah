@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use App\Models\Prize;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DrawController extends Controller
 {
@@ -80,7 +82,7 @@ class DrawController extends Controller
         
         $candidates = Participant::where('event_id', $event->id)
             ->where('is_winner', false)
-            ->select('id', 'coupon_number', 'name', 'phone')
+            ->select('id', 'coupon_number', 'name', 'phone', 'asal')
             ->inRandomOrder() 
             ->get();
 
@@ -254,6 +256,75 @@ class DrawController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Export winners to Excel
+     */
+    public function exportWinners($shortlink)
+    {
+        try {
+            $event = Event::where('shortlink', $shortlink)->firstOrFail();
+            
+            $winners = Winner::with(['participant', 'prize'])
+                ->where('event_id', $event->id)
+                ->orderBy('drawn_at', 'desc')
+                ->get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Data Pemenang');
+
+            // Set headers with styling
+            $headers = ['No', 'No. Kupon', 'Nama', 'No. HP', 'Hadiah', 'Tanggal Diundi'];
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->getFont()->setBold(true);
+                $sheet->getStyle($col . '1')->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FF4472C4');
+                $sheet->getStyle($col . '1')->getFont()->getColor()->setARGB('FFFFFFFF');
+                $col++;
+            }
+
+            // Set data
+            $row = 2;
+            foreach ($winners as $index => $winner) {
+                $sheet->setCellValue('A' . $row, $index + 1);
+                $sheet->setCellValue('B' . $row, $winner->participant->coupon_number ?? '-');
+                $sheet->setCellValue('C' . $row, $winner->participant->name ?? '-');
+                $sheet->setCellValue('D' . $row, $winner->participant->phone ?? '-');
+                $sheet->setCellValue('E' . $row, $winner->prize_name ?? '-');
+                $sheet->setCellValue('F' . $row, $winner->drawn_at ? $winner->drawn_at->format('d M Y H:i') : '-');
+                $row++;
+            }
+
+            // Auto size columns
+            foreach (range('A', 'F') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            // Set borders
+            if ($row > 2) {
+                $sheet->getStyle('A1:F' . ($row - 1))->getBorders()->getAllBorders()
+                    ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            }
+
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'pemenang_' . str_replace([' ', '/'], '_', $event->nm_event) . '_' . date('Ymd_His') . '.xlsx';
+            $filePath = storage_path('app/temp/' . $filename);
+
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0755, true);
+            }
+
+            $writer->save($filePath);
+
+            return response()->download($filePath, $filename)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
         }
     }
 }

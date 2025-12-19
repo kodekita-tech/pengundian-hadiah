@@ -41,6 +41,12 @@
                     <span class="menu-label">Event</span>
                 </a>
             </li>
+            <li class="menu-item {{ request()->routeIs('admin.winner.*') ? 'active' : '' }}">
+                <a class="menu-link {{ request()->routeIs('admin.winner.*') ? 'active' : '' }}" href="{{ route('admin.winner.index') }}">
+                    <i class="fi fi-rr-trophy"></i>
+                    <span class="menu-label">Pemenang</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </aside>
