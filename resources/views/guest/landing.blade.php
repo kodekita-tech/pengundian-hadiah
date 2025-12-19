@@ -46,7 +46,7 @@
                     </div>
                 </div>
                 <h1 class="hero-title">
-                    <span class="title-line">Sistem</span>
+                    <span class="title-line gradient-text">Sistem</span>
                     <span class="title-line gradient-text">Pengundian Hadiah</span>
                 </h1>
                 <p class="hero-subtitle">Platform digital untuk pengundian hadiah yang transparan dan terpercaya</p>
