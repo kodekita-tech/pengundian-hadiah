@@ -21,4 +21,5 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     require __DIR__.'/admin/opd.php';
     require __DIR__.'/admin/event.php';
     require __DIR__.'/admin/profile.php';
+    require __DIR__.'/admin/winner.php';
 });
