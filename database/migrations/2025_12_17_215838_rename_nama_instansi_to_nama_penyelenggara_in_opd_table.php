@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('opd', function (Blueprint $table) {
-            $table->renameColumn('nama_instansi', 'nama_penyelenggara');
-        });
+        if (Schema::hasColumn('opd', 'nama_instansi')) {
+            Schema::table('opd', function (Blueprint $table) {
+                $table->renameColumn('nama_instansi', 'nama_penyelenggara');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('opd', function (Blueprint $table) {
-            $table->renameColumn('nama_penyelenggara', 'nama_instansi');
-        });
+        if (Schema::hasColumn('opd', 'nama_penyelenggara')) {
+            Schema::table('opd', function (Blueprint $table) {
+                $table->renameColumn('nama_penyelenggara', 'nama_instansi');
+            });
+        }
     }
 };
