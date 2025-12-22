@@ -37,7 +37,7 @@
                         <i class="fi fi-rr-gift"></i>
                         <span>Pilih Hadiah untuk Diundi</span>
                     </label>
-                    
+
                     <!-- Prize Filter Section -->
                     <div class="prize-filter-section">
                         <button class="btn-prize-filter-toggle" id="btnPrizeFilterToggle">
@@ -49,15 +49,11 @@
                             <div class="prize-filter-list">
                                 @foreach($prizes as $prize)
                                 <label class="prize-filter-item">
-                                    <input type="radio" 
-                                           name="selectedPrize"
-                                           class="prize-filter-radio" 
-                                           value="{{ $prize->id }}" 
-                                           data-prize-id="{{ $prize->id }}"
-                                           data-prize-name="{{ $prize->name }}"
-                                           data-stock="{{ $prize->stock }}"
-                                           data-unlimited="{{ $prize->hasStockLimit() ? '0' : '1' }}"
-                                           {{ !$prize->isAvailable() ? 'disabled' : '' }}>
+                                    <input type="radio" name="selectedPrize" class="prize-filter-radio"
+                                        value="{{ $prize->id }}" data-prize-id="{{ $prize->id }}"
+                                        data-prize-name="{{ $prize->name }}" data-stock="{{ $prize->stock }}"
+                                        data-unlimited="{{ $prize->hasStockLimit() ? '0' : '1' }}" {{
+                                        !$prize->isAvailable() ? 'disabled' : '' }}>
                                     <div class="prize-filter-content">
                                         <div class="prize-filter-icon">
                                             <i class="fi fi-rr-gift"></i>
@@ -65,13 +61,14 @@
                                         <div class="prize-filter-name">{{ $prize->name }}</div>
                                         <div class="prize-filter-stock">
                                             @if($prize->hasStockLimit())
-                                                <span class="stock-badge-small {{ $prize->stock > 0 ? 'stock-available' : 'stock-empty' }}">
-                                                    {{ $prize->stock }} tersisa
-                                                </span>
+                                            <span
+                                                class="stock-badge-small {{ $prize->stock > 0 ? 'stock-available' : 'stock-empty' }}">
+                                                {{ $prize->stock }} tersisa
+                                            </span>
                                             @else
-                                                <span class="stock-badge-small stock-unlimited">
-                                                    Unlimited
-                                                </span>
+                                            <span class="stock-badge-small stock-unlimited">
+                                                Unlimited
+                                            </span>
                                             @endif
                                         </div>
                                     </div>
@@ -127,9 +124,8 @@
                                 <i class="fi fi-rr-trophy me-2 text-warning"></i>Daftar Pemenang
                             </h5>
                             @if($winners->count() > 0)
-                            <a href="{{ route('draw.export-winners', $event->shortlink) }}" 
-                               class="btn btn-success btn-sm" 
-                               id="btnExportWinners">
+                            <a href="{{ route('draw.export-winners', $event->shortlink) }}"
+                                class="btn btn-success btn-sm" id="btnExportWinners">
                                 <i class="fi fi-rr-download me-1"></i>Export Excel
                             </a>
                             @endif
@@ -141,18 +137,15 @@
                                     <span class="input-group-text bg-white">
                                         <i class="fi fi-rr-search text-muted"></i>
                                     </span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="searchWinner" 
-                                           autocomplete="off"
-                                           placeholder="Cari nama, nomor kupon, nomor HP, asal, hadiah, atau tanggal...">
+                                    <input type="text" class="form-control" id="searchWinner" autocomplete="off"
+                                        placeholder="Cari nama, nomor kupon, nomor HP, asal, hadiah, atau tanggal...">
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <select class="form-select" id="filterPrize">
                                     <option value="">Semua Hadiah</option>
                                     @foreach($prizes as $prize)
-                                        <option value="{{ $prize->id }}">{{ $prize->name }}</option>
+                                    <option value="{{ $prize->id }}">{{ $prize->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -162,41 +155,43 @@
                         <div class="winners-list" id="winnerList">
                             <div id="winnerListGroup" class="row g-2">
                                 @php
-                                    // Sort winners by prize_id first, then by prize_name
-                                    $sortedWinners = $winners->sortBy(function($winner) {
-                                        // Pad prize_id with zeros for proper sorting, then append prize_name
-                                        $prizeId = str_pad($winner->prize_id ?? 0, 10, '0', STR_PAD_LEFT);
-                                        return $prizeId . '_' . ($winner->prize_name ?? '');
-                                    })->values();
+                                // Sort winners by prize_id first, then by prize_name
+                                $sortedWinners = $winners->sortBy(function($winner) {
+                                // Pad prize_id with zeros for proper sorting, then append prize_name
+                                $prizeId = str_pad($winner->prize_id ?? 0, 10, '0', STR_PAD_LEFT);
+                                return $prizeId . '_' . ($winner->prize_name ?? '');
+                                })->values();
                                 @endphp
                                 @forelse($sortedWinners as $winner)
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                    <div class="card winner-card h-100 border-0 shadow-sm winner-item" 
-                                         data-prize-id="{{ $winner->prize_id }}"
-                                         data-prize-name="{{ strtolower($winner->prize_name) }}"
-                                         data-participant-name="{{ strtolower($winner->participant->name ?? '') }}"
-                                         data-coupon-number="{{ $winner->participant->coupon_number ?? '' }}"
-                                         data-phone="{{ strtolower($winner->participant->phone ?? '') }}"
-                                         data-asal="{{ strtolower($winner->participant->asal ?? '') }}"
-                                         data-drawn-date="{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y') : '' }}">
+                                    <div class="card winner-card h-100 border-0 shadow-sm winner-item"
+                                        data-prize-id="{{ $winner->prize_id }}"
+                                        data-prize-name="{{ strtolower($winner->prize_name) }}"
+                                        data-participant-name="{{ strtolower($winner->participant->name ?? '') }}"
+                                        data-coupon-number="{{ $winner->participant->coupon_number ?? '' }}"
+                                        data-phone="{{ strtolower($winner->participant->phone ?? '') }}"
+                                        data-asal="{{ strtolower($winner->participant->asal ?? '') }}"
+                                        data-drawn-date="{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y') : '' }}">
                                         <div class="card-body text-center p-2">
                                             <!-- Participant Name -->
-                                            <h6 class="winner-card-name mb-1 fw-bold">{{ $winner->participant->name ?? '-' }}</h6>
-                                            
+                                            <h6 class="winner-card-name mb-1 fw-bold">{{ $winner->participant->name ??
+                                                '-' }}</h6>
+
                                             <!-- Coupon Number -->
                                             <div class="winner-card-coupon mb-1">
                                                 <div class="coupon-badge">
                                                     <i class="fi fi-rr-ticket me-1"></i>
-                                                    <span class="coupon-number">{{ $winner->participant->coupon_number ?? '-' }}</span>
+                                                    <span class="coupon-number">{{ $winner->participant->coupon_number
+                                                        ?? '-' }}</span>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Prize Info -->
                                             <div class="winner-card-prize mb-1">
                                                 <i class="fi fi-rr-gift me-1"></i>
                                                 <span class="prize-text">{{ $winner->prize_name ?? '-' }}</span>
                                             </div>
-                                            
+
                                             <!-- Additional Info -->
                                             <div class="winner-card-info">
                                                 <div class="info-item mb-0">
@@ -209,7 +204,8 @@
                                                 </div>
                                                 <div class="info-item">
                                                     <i class="fi fi-rr-calendar"></i>
-                                                    <span>{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y H:i') : '-' }}</span>
+                                                    <span>{{ $winner->drawn_at ? $winner->drawn_at->format('d/m/Y H:i')
+                                                        : '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -575,6 +571,7 @@
             opacity: 0;
             transform: translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -973,6 +970,7 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -1124,8 +1122,8 @@
         border-radius: 12px;
         padding: 2px;
         background: linear-gradient(135deg, #98FB98 0%, #00BFFF 100%);
-        -webkit-mask: 
-            linear-gradient(#fff 0 0) content-box, 
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
             linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
@@ -1810,7 +1808,7 @@
         max-height: 200px;
     }
 
-    .winner-card .card-body > * {
+    .winner-card .card-body>* {
         width: 100%;
         text-align: center;
         margin-left: auto;
@@ -1850,6 +1848,7 @@
         0% {
             background-position: -200% 0;
         }
+
         100% {
             background-position: 200% 0;
         }
@@ -1998,6 +1997,7 @@
             opacity: 0;
             transform: translateY(20px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -2217,6 +2217,10 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 <script>
+    // Setup CSRF token for Axios
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').attr('content');
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    
     $(document).ready(function() {
         let candidates = [];
         let allCouponNumbers = []; // Semua nomor kupon untuk visual random
